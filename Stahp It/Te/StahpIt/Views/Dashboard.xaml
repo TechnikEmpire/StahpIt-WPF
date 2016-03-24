@@ -1,0 +1,294 @@
+﻿<local:BaseView x:Class="Te.StahpIt.Views.Dashboard"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:local="clr-namespace:Te.StahpIt.Views"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                d:DesignHeight="511"
+                d:DesignWidth="800"
+                mc:Ignorable="d">
+
+    <local:BaseView.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </local:BaseView.Resources>
+
+    <Grid Width="800"
+          Height="511"
+          Margin="0,0,0,0">
+
+        <!--  Border brush for the filter toggle button  -->
+        <Rectangle Margin="{Binding ElementName=btnFilterToggle,
+                                    Path=Margin}"
+                   Fill="#CC119EDA"
+                   RenderTransformOrigin="0.5,0.5"
+                   Visibility="{Binding ElementName=btnFilterToggle,
+                                        Path=IsMouseOver,
+                                        Converter={StaticResource BoolToVis}}">
+            <Rectangle.RenderTransform>
+                <ScaleTransform ScaleX="1.02" ScaleY="1.02" />
+            </Rectangle.RenderTransform>
+        </Rectangle>
+
+        <Controls:Tile x:Name="btnFilterToggle"
+                       Title="Click To Toggle"
+                       Width="Auto"
+                       Height="Auto"
+                       Margin="65,67,562,278"
+                       Cursor="Hand"
+                       RenderTransformOrigin="0.5,0.5"
+                       x:FieldModifier="private">
+
+            <Controls:Tile.Background>
+                <SolidColorBrush x:Name="filterButtonBackground"
+                                 x:FieldModifier="private"
+                                 Color="{Binding Path=FilteringButtonColor}" />
+            </Controls:Tile.Background>
+
+            <Controls:Tile.Content>
+                <Rectangle Width="100"
+                           Height="100"
+                           Margin="0,0,0,0"
+                           Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush x:Name="filterButtonIcon"
+                                     Stretch="Fill"
+                                     Visual="{StaticResource appbar_close}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Controls:Tile.Content>
+        </Controls:Tile>
+
+        <!--  Border brush for the exit button  -->
+        <Rectangle Margin="{Binding ElementName=exitButton,
+                                    Path=Margin}"
+                   Fill="#CC119EDA"
+                   RenderTransformOrigin="0.5,0.5"
+                   Visibility="{Binding ElementName=exitButton,
+                                        Path=IsMouseOver,
+                                        Converter={StaticResource BoolToVis}}">
+            <Rectangle.RenderTransform>
+                <ScaleTransform ScaleX="1.02" ScaleY="1.03" />
+            </Rectangle.RenderTransform>
+        </Rectangle>
+
+        <Controls:Tile x:Name="exitButton"
+                       Title="Exit App"
+                       Width="Auto"
+                       Height="Auto"
+                       Margin="247,67,380,280"
+                       Background="{DynamicResource WindowTitleColorBrush}"
+                       Cursor="Hand"
+                       x:FieldModifier="private">
+            <Controls:Tile.Content>
+                <Rectangle Width="56"
+                           Height="56"
+                           Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_door_leave}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Controls:Tile.Content>
+        </Controls:Tile>
+
+        <Label Canvas.Left="3"
+               Canvas.Top="10"
+               Width="173"
+               Height="28"
+               Margin="65,71,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Center"
+               Content="FILTER"
+               FontSize="18"
+               FontWeight="Bold"
+               Foreground="White"
+               IsHitTestVisible="False"
+               Padding="0,0,0,0" />
+
+        <Label x:Name="labelFilterStatus"
+               Canvas.Left="141"
+               Canvas.Top="179"
+               Width="55"
+               Height="31"
+               Margin="178,200,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=FilteringStatus}"
+               FontSize="22"
+               FontWeight="Bold"
+               Foreground="White"
+               IsHitTestVisible="False"
+               Padding="0,0,0,0"
+               TextBlock.TextAlignment="Center"
+               x:FieldModifier="private" />
+
+        <Label Width="281"
+               Margin="500,18,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Center"
+               Content="Filtered Applications"
+               FontSize="25"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity="1"
+               Padding="0,0,0,0" />
+
+        <Label Width="281"
+               Margin="108,18,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Center"
+               Content="App Control"
+               FontSize="25"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity="1"
+               Padding="0,0,0,0"
+               TextOptions.TextRenderingMode="ClearType" />
+
+        <Label Width="281"
+               Margin="108,258,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Center"
+               Content="Stats Summary"
+               FontSize="25"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity="1"
+               Padding="0,0,0,0" />
+
+        <Label Width="377"
+               Margin="43,338,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=TotalRequestsBlocked}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="377"
+               Margin="43,467,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=TotalDataBlockedString}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="255"
+               Margin="43,308,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="Requests Blocked"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="255"
+               Margin="43,436,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="Totaling Over"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <TextBlock Width="296"
+                   Height="176"
+                   Margin="494,335,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   TextWrapping="Wrap"><Run Text="Selecting an application for filtering will permit that application to access the internet." />
+            <LineBreak /><Run /><Run />
+            <LineBreak /><Run Text="Also note that applications listed here are only listed because it was detected that" /><Run Text=" they" /><Run Text=" used standard HTTP and HTTPS ports." /><Run Text=" This doesn't mean that these apps are actually using these ports for the HTTP protocol. If " /><Run Text="an app experiences communication issues after you select it for filtering, this is the cause. The application is violating the concept of &quot;" /><Run Text="system " /><Run Text="ports&quot;." />
+            <LineBreak /><Run />
+        </TextBlock>
+
+        <Label Width="377"
+               Margin="43,404,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding TotalHtmlElementsRemoved}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="255"
+               Margin="43,374,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="HTML Elements Removed"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <DataGrid x:Name="dataGridFilterApps"
+                  Grid.Row="0"
+                  Margin="494,65,8,181"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding Path=FilteredApplications,
+                                        Mode=Default}"
+                  x:FieldModifier="private">
+
+            <DataGrid.ColumnHeaderStyle>
+                <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Width="64"
+                                        Binding="{Binding Path=Filter,
+                                                          Mode=TwoWay,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                        CanUserResize="False"
+                                        EditingElementStyle="{DynamicResource MetroDataGridCheckBox}"
+                                        ElementStyle="{DynamicResource MetroDataGridCheckBox}"
+                                        Header="Filter"
+                                        TextBlock.TextAlignment="Center" />
+
+                <DataGridTextColumn Width="188"
+                                    Binding="{Binding Path=AppName,
+                                                      Mode=OneWay}"
+                                    CanUserReorder="False"
+                                    CanUserResize="False"
+                                    Header="App Name"
+                                    IsReadOnly="True" />
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </Grid>
+
+</local:BaseView>

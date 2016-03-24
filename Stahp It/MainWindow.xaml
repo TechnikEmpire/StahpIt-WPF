@@ -1,0 +1,148 @@
+﻿<Controls:MetroWindow x:Class="Te.StahpIt.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:local="clr-namespace:Te.StahpIt"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      Title="Stahp It"
+                      Width="960"
+                      Height="540"
+                      GlowBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"
+                      ResizeMode="CanMinimize"
+                      RightWindowCommandsOverlayBehavior="Flyouts"
+                      WindowStartupLocation="CenterScreen"
+                      WindowTransitionsEnabled="True"
+                      mc:Ignorable="d">
+
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+            <Controls:Flyout x:Name="rightFlyout"
+                             Width="250"
+                             Header="Flyout"
+                             Position="Right"
+                             x:FieldModifier="internal" />
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="154" />
+            <ColumnDefinition Width="800" />
+        </Grid.ColumnDefinitions>
+
+        <Controls:TransitioningContentControl x:Name="CurrentView"
+                                              Grid.Column="1"
+                                              Transition="Left"
+                                              x:FieldModifier="internal" />
+
+        <UniformGrid Grid.Row="0"
+                     Margin="0"
+                     Rows="4">
+
+            <UniformGrid.Resources>
+                <Style x:Key="MenuTileStyleEven"
+                       BasedOn="{StaticResource {x:Type Controls:Tile}}"
+                       TargetType="{x:Type Controls:Tile}">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource HighlightBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter Property="Background" Value="{DynamicResource AccentColorBrush2}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+
+                <Style x:Key="MenuTileStyleOdd"
+                       BasedOn="{StaticResource {x:Type Controls:Tile}}"
+                       TargetType="{x:Type Controls:Tile}">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource HighlightBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </UniformGrid.Resources>
+
+            <Controls:Tile x:Name="btnDashboard"
+                           Title="Dashboard"
+                           Width="Auto"
+                           Height="127.75"
+                           Margin="0"
+                           Cursor="Hand"
+                           Style="{StaticResource MenuTileStyleEven}"
+                           x:FieldModifier="private">
+
+                <Rectangle Width="50"
+                           Height="50"
+                           Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_control_guide}" />
+                    </Rectangle.OpacityMask>
+                    <Rectangle.CacheMode>
+                        <BitmapCache EnableClearType="true" RenderAtScale="4" />
+                    </Rectangle.CacheMode>
+                </Rectangle>
+            </Controls:Tile>
+
+            <Controls:Tile x:Name="btnSettings"
+                           Title="Settings"
+                           Width="Auto"
+                           Height="127.75"
+                           Margin="0"
+                           Cursor="Hand"
+                           Style="{StaticResource MenuTileStyleOdd}"
+                           x:FieldModifier="private">
+
+                <Rectangle Width="50"
+                           Height="50"
+                           Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_cogs}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Controls:Tile>
+
+            <Controls:Tile x:Name="btnStatistics"
+                           Title="Statistics"
+                           Width="Auto"
+                           Height="127.75"
+                           Margin="0"
+                           Cursor="Hand"
+                           Style="{StaticResource MenuTileStyleEven}"
+                           x:FieldModifier="private">
+
+                <Rectangle Width="50"
+                           Height="50"
+                           Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_graph_histogram_description}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Controls:Tile>
+            <Controls:Tile x:Name="btnEnvImpact"
+                           Title="Waste Stats"
+                           Width="Auto"
+                           Height="127.75"
+                           Margin="0"
+                           Cursor="Hand"
+                           Style="{StaticResource MenuTileStyleOdd}"
+                           x:FieldModifier="private">
+
+                <Rectangle Width="50"
+                           Height="50"
+                           Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_tree_leaf_three}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Controls:Tile>
+        </UniformGrid>
+    </Grid>
+
+</Controls:MetroWindow>

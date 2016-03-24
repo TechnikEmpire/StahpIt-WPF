@@ -1,0 +1,82 @@
+﻿<local:BaseView x:Class="Te.StahpIt.Views.Statistics"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:chart="clr-namespace:De.TorstenMandelkow.MetroChart;assembly=De.TorstenMandelkow.MetroChart"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:local="clr-namespace:Te.StahpIt.Views"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                d:DesignHeight="511"
+                d:DesignWidth="800"
+                mc:Ignorable="d">
+
+    <Grid Margin="0,0,0,0">
+
+        <Grid.Resources>
+            <Style x:Key="MinimalChartStyle" TargetType="chart:ChartBase" />
+        </Grid.Resources>
+
+        <Canvas x:Name="barChartFilteredTrafficMapWrapper"
+                Width="370"
+                Height="454"
+                Margin="10,22,0,39"
+                HorizontalAlignment="Left"
+                x:FieldModifier="private">
+            <chart:ClusteredBarChart x:Name="barChartFilteredTrafficMap"
+                                     Width="{Binding ElementName=barChartFilteredTrafficMapWrapper,
+                                                     Path=ActualWidth}"
+                                     Height="{Binding ElementName=barChartFilteredTrafficMapWrapper,
+                                                      Path=ActualHeight}"
+                                     HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch"
+                                     HorizontalContentAlignment="Stretch"
+                                     VerticalContentAlignment="Stretch"
+                                     Background="Transparent"
+                                     ChartSubTitle="Number of requests blocked from completing."
+                                     ChartTitle="Filtered Requests By Category"
+                                     SelectedItem="{Binding Path=SelectedItem,
+                                                            Mode=TwoWay}"
+                                     Style="{StaticResource MinimalChartStyle}"
+                                     x:FieldModifier="private">
+                <chart:ClusteredBarChart.Series>
+                    <chart:ChartSeries DisplayMember="FilteringCategory.CategoryName"
+                                       ItemsSource="{Binding Path=FilterStats,
+                                                             UpdateSourceTrigger=PropertyChanged}"
+                                       SeriesTitle="Blocked Requests"
+                                       ValueMember="TotalRequestsBlocked" />
+                </chart:ClusteredBarChart.Series>
+            </chart:ClusteredBarChart>
+        </Canvas>
+
+        <Canvas x:Name="barChartBandwidthMapWrapper"
+                Width="370"
+                Height="470"
+                Margin="412,23,18,18"
+                x:FieldModifier="private">
+            <chart:ClusteredColumnChart x:Name="barChartBandwidthMap"
+                                        Width="{Binding ElementName=barChartBandwidthMapWrapper,
+                                                        Path=ActualWidth}"
+                                        Height="{Binding ElementName=barChartBandwidthMapWrapper,
+                                                         Path=ActualHeight}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        Background="Transparent"
+                                        ChartSubTitle="Bandwidth saved by blocking requests."
+                                        ChartTitle="Bandwidth Saved By Category"
+                                        SelectedItem="{Binding Path=SelectedItem,
+                                                               Mode=TwoWay}"
+                                        Style="{StaticResource MinimalChartStyle}"
+                                        x:FieldModifier="private">
+                <chart:ClusteredColumnChart.Series>
+                    <chart:ChartSeries DisplayMember="FilteringCategory.CategoryName"
+                                       ItemsSource="{Binding Path=FilterStats,
+                                                             UpdateSourceTrigger=PropertyChanged}"
+                                       SeriesTitle="Saved Bandwidth in Kilobytes"
+                                       ValueMember="TotalKilobytesBlocked" />
+                </chart:ClusteredColumnChart.Series>
+            </chart:ClusteredColumnChart>
+        </Canvas>
+
+    </Grid>
+</local:BaseView>
