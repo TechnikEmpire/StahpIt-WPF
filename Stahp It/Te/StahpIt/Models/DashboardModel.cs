@@ -31,7 +31,6 @@
 
 using ByteSizeLib;
 using System;
-using System.Threading;
 using Te.HttpFilteringEngine;
 
 namespace Te.StahpIt.Models

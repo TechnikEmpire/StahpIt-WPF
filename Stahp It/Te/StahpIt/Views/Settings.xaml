@@ -8,43 +8,122 @@
                 d:DesignHeight="511"
                 d:DesignWidth="800"
                 mc:Ignorable="d">
+
     <Grid>
 
+        <DataGrid x:Name="userFilteringCategories"
+                  Width="760"
+                  Margin="20,19,20,96"
+                  HorizontalAlignment="Center"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding Path=FilteredApplications,
+                                        Mode=Default}"
+                  x:FieldModifier="private">
+
+            <DataGrid.ColumnHeaderStyle>
+                <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Width="64"
+                                        Binding="{Binding Path=Enabled,
+                                                          Mode=TwoWay,
+                                                          UpdateSourceTrigger=PropertyChanged}"
+                                        CanUserResize="False"
+                                        EditingElementStyle="{StaticResource MetroDataGridCheckBox}"
+                                        ElementStyle="{StaticResource MetroDataGridCheckBox}"
+                                        Header="Enabled"
+                                        TextBlock.TextAlignment="Center" />
+
+                <DataGridTextColumn Width="128"
+                                    Binding="{Binding Path=TotalRulesLoaded,
+                                                      Mode=OneWay}"
+                                    CanUserReorder="False"
+                                    CanUserResize="False"
+                                    Header="Rules Loaded"
+                                    TextBlock.TextAlignment="Center" />
+
+                <DataGridTextColumn Width="128"
+                                    Binding="{Binding Path=TotalRulesFailed,
+                                                      Mode=OneWay}"
+                                    CanUserReorder="False"
+                                    CanUserResize="False"
+                                    Header="Rules Failed"
+                                    TextBlock.TextAlignment="Center" />
+
+                <DataGridTextColumn Width="140"
+                                    Binding="{Binding Path=CategoryName,
+                                                      Mode=OneWay}"
+                                    CanUserReorder="False"
+                                    CanUserResize="False"
+                                    Header="Category Name"
+                                    IsReadOnly="True" />
+
+                <DataGridTextColumn Width="298"
+                                    Binding="{Binding Path=CategoryName,
+                                                      Mode=OneWay}"
+                                    CanUserReorder="False"
+                                    CanUserResize="False"
+                                    Header="Source"
+                                    IsReadOnly="True" />
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+        <Controls:ToggleSwitch x:Name="toggleRunAtStartup"
+                               Margin="20,431,649,10"
+                               Cursor="Hand"
+                               Header="Run At Startup"
+                               IsChecked="{Binding Path=RunAtStartup,
+                                                   Mode=TwoWay,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                               OffLabel="No"
+                               OnLabel="Yes"
+                               x:FieldModifier="private" />
+
         <Button x:Name="btnShowAddCategory"
-                Width="35"
-                Height="35"
-                Margin="707,466,0,0"
+                Width="46"
+                Height="46"
+                Margin="674,444,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Cursor="Hand"
-                Style="{DynamicResource MetroCircleButtonStyle}"
+                Style="{StaticResource MetroCircleButtonStyle}"
                 x:FieldModifier="private">
             <Rectangle Width="15"
                        Height="15"
                        Fill="Black">
                 <Rectangle.OpacityMask>
-                    <VisualBrush Stretch="Fill" Visual="{DynamicResource appbar_add}" />
+                    <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_add}" />
                 </Rectangle.OpacityMask>
             </Rectangle>
         </Button>
 
         <Button x:Name="btnDeleteCategory"
-                Width="35"
-                Height="35"
-                Margin="753,466,0,0"
+                Width="46"
+                Height="46"
+                Margin="734,444,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Cursor="Hand"
-                Style="{DynamicResource MetroCircleButtonStyle}"
+                Style="{StaticResource MetroCircleButtonStyle}"
                 x:FieldModifier="private">
             <Rectangle Width="10"
                        Height="3"
                        Fill="Black">
                 <Rectangle.OpacityMask>
-                    <VisualBrush Stretch="Fill" Visual="{DynamicResource appbar_minus}" />
+                    <VisualBrush Stretch="Fill" Visual="{StaticResource appbar_minus}" />
                 </Rectangle.OpacityMask>
             </Rectangle>
         </Button>
+
+        <Separator Width="760"
+                   Height="14"
+                   Margin="20,416,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top" />
 
     </Grid>
 </local:BaseView>

@@ -30,61 +30,22 @@
 */
 
 using System;
-using System.Windows.Controls;
-using Te.StahpIt.Filtering;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Te.StahpIt.Controls
+namespace Te.StahpIt.Models
 {
-
-    /// <summary>
-    /// Argugments for the FilteringCategoryCreated event.
-    /// </summary>
-    public class FilteringCategoryCreatedArgs: EventArgs
+    public class SettingsModel
     {
-        public FilteringCategory Category
+        public bool RunAtStartup
         {
             get;
             set;
         }
-    }
 
-    /// <summary>
-    /// Delegate for CategoryCreated event.
-    /// </summary>
-    /// <param name="sender">
-    /// Object raising the event.
-    /// </param>
-    /// <param name="e">
-    /// The event arguments.
-    /// </param>
-    public delegate void FilteringCategoryCreated(object sender, FilteringCategoryCreatedArgs args);
-
-    /// <summary>
-    /// Interaction logic for AddCategoryControl.xaml
-    /// </summary>
-    public partial class AddCategoryControl : UserControl
-    {
-
-        public event FilteringCategoryCreated CategoryCreated;
-
-        public AddCategoryControl()
-        {
-            InitializeComponent();
-
-            btnAddCategory.IsEnabled = false;
-
-            btnAddCategory.Click += OnAddCategoryClicked;
-        }
-
-        private void OnAddCategoryClicked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if(CategoryCreated != null)
-            {
-
-            }
-        }
-
-        public void Reset()
+        public SettingsModel()
         {
 
         }

@@ -185,6 +185,7 @@
     <Compile Include="Te\StahpIt\Controls\AddCategoryControl.xaml.cs">
       <DependentUpon>AddCategoryControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Te\StahpIt\Models\SettingsModel.cs" />
     <Compile Include="Te\StahpIt\ViewModels\CategorizedFilteredRequestsViewModel.cs" />
     <Compile Include="Te\StahpIt\Models\DashboardModel.cs" />
     <Compile Include="Te\StahpIt\Models\FilteredAppModel.cs" />
@@ -194,6 +195,7 @@
     <Compile Include="Te\StahpIt\ViewModels\BaseViewModel.cs" />
     <Compile Include="Te\StahpIt\ViewModels\DashboardViewModel.cs" />
     <Compile Include="Te\StahpIt\ViewModels\FilteredAppViewModel.cs" />
+    <Compile Include="Te\StahpIt\ViewModels\SettingsViewModel.cs" />
     <Compile Include="Te\StahpIt\ViewModels\StatisticsViewModel.cs" />
     <Compile Include="Te\StahpIt\Views\BaseView.cs" />
     <Compile Include="Te\StahpIt\Views\Dashboard.xaml.cs">

@@ -91,6 +91,8 @@ namespace Te.StahpIt
         private DashboardViewModel m_viewModelDashboard;
         private Dashboard m_viewDashboard;
 
+        private SettingsModel m_modelSettings;
+        private SettingsViewModel m_viewModelSettings;
         private Settings m_viewSettings;
 
         /// <summary>
@@ -166,7 +168,7 @@ namespace Te.StahpIt
         }
 
         /// <summary>
-        /// Calls all other init methods, which are split up into logical groupings.
+        /// Calls all other init methods, which are split up into ordered, logical groupings.
         /// </summary>
         private void DoInit()
         {
@@ -213,14 +215,16 @@ namespace Te.StahpIt
             m_viewModelStatistics = new StatisticsViewModel(m_modelStatistics);
             m_viewStatistics = new Statistics(m_viewModelStatistics);
 
-            m_viewSettings = new Settings();
+            m_modelSettings = new SettingsModel();
+            m_viewModelSettings = new SettingsViewModel(m_modelSettings);
+            m_viewSettings = new Settings(m_viewModelSettings);
 
-            m_primaryWindow.ViewChangeRequest += OnViewRequestChange;
-            m_viewDashboard.ViewChangeRequest += OnViewRequestChange;
-            m_viewStatistics.ViewChangeRequest += OnViewRequestChange;
-            //m_viewSettings.ViewChangeRequest += OnViewRequestChange;
+            m_primaryWindow.ViewChangeRequest += OnViewChangeRequest;
+            m_viewDashboard.ViewChangeRequest += OnViewChangeRequest;
+            m_viewStatistics.ViewChangeRequest += OnViewChangeRequest;
+            m_viewSettings.ViewChangeRequest += OnViewChangeRequest;
 
-            OnViewRequestChange(this, new ViewChangeRequestArgs(View.Dashboard));
+            OnViewChangeRequest(this, new ViewChangeRequestArgs(View.Dashboard));
         }
 
         /// <summary>
@@ -232,7 +236,7 @@ namespace Te.StahpIt
         /// <param name="e">
         /// Arguments for the view change.
         /// </param>
-        private void OnViewRequestChange(object sender, ViewChangeRequestArgs e)
+        private void OnViewChangeRequest(object sender, ViewChangeRequestArgs e)
         {
             BaseView viewToLoad = null;
             string windowTitle = string.Empty;
@@ -277,13 +281,24 @@ namespace Te.StahpIt
 
             if (viewToLoad != null)
             {
-                Current.Dispatcher.BeginInvoke(
+                Current.Dispatcher.Invoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
                     (Action)delegate ()
                     {
-                        Debug.WriteLine("Setting view.");
-                        m_primaryWindow.CurrentView.Content = viewToLoad;
-                        m_primaryWindow.Title = "Stahp It" + windowTitle;
+                        try
+                        {
+                            // Hide any active flyouts, as the way that we use them, they are always related to
+                            // the current view.
+                            m_primaryWindow.HideAllFlyouts();
+                            m_primaryWindow.CurrentView.Content = viewToLoad;
+                            m_primaryWindow.Title = "Stahp It" + windowTitle;
+                        }
+                        catch(Exception err)
+                        {                            
+                            Debug.WriteLine(err.Message);
+                            Debug.WriteLine(err.InnerException.Message);
+                        }
+                        
                     }
                 );
             }
@@ -504,6 +519,7 @@ namespace Te.StahpIt
 
         private void WinSparkleRequestsShutdown()
         {
+
         }
 
         private bool FirewallCheck(string binaryFullPath)

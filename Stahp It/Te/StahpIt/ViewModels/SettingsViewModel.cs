@@ -30,63 +30,57 @@
 */
 
 using System;
-using System.Windows.Controls;
-using Te.StahpIt.Filtering;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Te.StahpIt.Models;
 
-namespace Te.StahpIt.Controls
+namespace Te.StahpIt.ViewModels
 {
-
-    /// <summary>
-    /// Argugments for the FilteringCategoryCreated event.
-    /// </summary>
-    public class FilteringCategoryCreatedArgs: EventArgs
-    {
-        public FilteringCategory Category
-        {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
-    /// Delegate for CategoryCreated event.
-    /// </summary>
-    /// <param name="sender">
-    /// Object raising the event.
-    /// </param>
-    /// <param name="e">
-    /// The event arguments.
-    /// </param>
-    public delegate void FilteringCategoryCreated(object sender, FilteringCategoryCreatedArgs args);
-
-    /// <summary>
-    /// Interaction logic for AddCategoryControl.xaml
-    /// </summary>
-    public partial class AddCategoryControl : UserControl
+    public class SettingsViewModel : BaseViewModel
     {
 
-        public event FilteringCategoryCreated CategoryCreated;
+        private SettingsModel m_model;
 
-        public AddCategoryControl()
+        public bool RunAtStartup
         {
-            InitializeComponent();
-
-            btnAddCategory.IsEnabled = false;
-
-            btnAddCategory.Click += OnAddCategoryClicked;
-        }
-
-        private void OnAddCategoryClicked(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if(CategoryCreated != null)
+            get
             {
+                if(m_model != null)
+                {
+                    return m_model.RunAtStartup;
+                }
 
+                return false;
+            }
+
+            set
+            {
+                if(m_model != null && value != m_model.RunAtStartup)
+                {
+                    m_model.RunAtStartup = value;
+
+                    PropertyHasChanged("RunAtStartup");
+                }
             }
         }
 
-        public void Reset()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <exception cref="ArgumentException">
+        /// </exception>
+        public SettingsViewModel(SettingsModel model)
         {
+            m_model = model;
 
+            if(m_model == null)
+            {
+                throw new ArgumentException("Expected valid instance of SettingsModel");
+            }
         }
+        
     }
 }

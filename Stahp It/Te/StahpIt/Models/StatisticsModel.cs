@@ -33,6 +33,6 @@ namespace Te.StahpIt.Models
 {
     public class StatisticsModel
     {
-        
+               
     }
 }

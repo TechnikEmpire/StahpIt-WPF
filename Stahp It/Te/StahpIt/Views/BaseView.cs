@@ -36,66 +36,6 @@ namespace Te.StahpIt.Views
 {   
 
     /// <summary>
-    /// Enum listing all possible/avaiable views that can be requested.
-    /// </summary>
-    public enum View
-    {
-        Dashboard,
-        Statistics,
-        ProgressWait,
-        Settings,
-        EnvironmentalImpact
-    }
-
-    /// <summary>
-    /// Parameters for ViewChangeRequest event.
-    /// </summary>
-    public class ViewChangeRequestArgs : EventArgs
-    {
-        /// <summary>
-        /// The view being requested.
-        /// </summary>
-        public View View
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// The additional data for the requested view. This is null by default. Presently, there is
-        /// only view that can potentially benefit from additional data: the ProgressWait view. This
-        /// event being raised may be another view/operation temporarily requested a progress/wait
-        /// and may wish to attach a special message for the user.
-        ///
-        /// This isn't ideal, but this is a the easiest solution at the time without writing an
-        /// entire, separate and specialized system like this just for one view. XXX TODO - Improve
-        /// this if this system needs to be extended later.
-        /// </summary>
-        public object Data
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Constructs a new ViewChangeRequestArgs class with the View being requested, as well as
-        /// some optional data for to be supplied to the requested view. See notes on the Data
-        /// member.
-        /// </summary>
-        /// <param name="view">
-        /// The view requested.
-        /// </param>
-        /// <param name="data">
-        /// Optional data for the requested view.
-        /// </param>
-        public ViewChangeRequestArgs(View view, object data = null)
-        {
-            View = view;
-            Data = data;
-        }
-    }
-
-    /// <summary>
     /// Base class that all views in this application should extend from. This is so that each of
     /// those views has the basic mechanism for data or user driven events to raise requests to
     /// modify the current view to respond to or notify the user.

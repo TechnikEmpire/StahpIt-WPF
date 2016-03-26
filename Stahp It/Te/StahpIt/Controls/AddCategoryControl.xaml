@@ -9,47 +9,45 @@
              d:DesignWidth="250"
              mc:Ignorable="d">
     <Grid>
-        <Label x:Name="label"
-               Width="135"
+        <Label Width="135"
                Margin="6,24,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Content="Category Name" />
 
-        <TextBox x:Name="TextboxCategoryName"
+        <TextBox x:Name="textboxCategoryName"
                  Width="230"
                  Height="23"
                  Margin="10,55,0,0"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Top"
-                 Text="TextBox"
-                 TextWrapping="Wrap"
-                 x:FieldModifier="internal" />
+                 Text=""
+                 TextWrapping="NoWrap"
+                 x:FieldModifier="private" />
 
-        <Label x:Name="label_Copy"
-               Width="135"
+        <Label Width="135"
                Margin="6,93,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                Content="Rule List URL" />
 
-        <TextBox x:Name="TextboxCategoryUrl"
+        <TextBox x:Name="textboxCategoryUrl"
                  Width="230"
                  Height="23"
                  Margin="10,124,0,0"
                  HorizontalAlignment="Left"
                  VerticalAlignment="Top"
-                 Text="TextBox"
-                 TextWrapping="Wrap"
-                 x:FieldModifier="internal" />
+                 Text=""
+                 TextWrapping="NoWrap"
+                 x:FieldModifier="private" />
 
-        <Button x:Name="BtnAddCategory"
+        <Button x:Name="btnAddCategory"
                 Width="120"
-                Margin="120,401,0,0"
+                Margin="120,428,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Content="Add Category"
                 Style="{StaticResource AccentedSquareButtonStyle}"
-                x:FieldModifier="internal" />
+                x:FieldModifier="private" />
     </Grid>
 </UserControl>

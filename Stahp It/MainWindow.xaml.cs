@@ -71,5 +71,16 @@ namespace Te.StahpIt
                 ViewChangeRequest(this, args);
             }
         }
+
+        /// <summary>
+        /// Hides any/all open flyouts.
+        /// </summary>
+        public void HideAllFlyouts()
+        {
+            foreach(var flyout in m_flyoutControl.FindChildren<Flyout>())
+            {
+                flyout.IsOpen = false;
+            }
+        }
     }
 }

@@ -29,8 +29,11 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using MahApps.Metro.Controls;
+using System;
 using System.Windows;
 using Te.StahpIt.Controls;
+using Te.StahpIt.ViewModels;
 
 namespace Te.StahpIt.Views
 {
@@ -41,20 +44,45 @@ namespace Te.StahpIt.Views
     {
         private AddCategoryControl m_addCategoryControl;
 
-        public Settings()
+        private SettingsViewModel m_viewModel;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="viewModel"></param>
+        /// <exception cref="ArgumentException">
+        /// </exception>
+        public Settings(SettingsViewModel viewModel)
         {
             InitializeComponent();
 
-            m_addCategoryControl = new AddCategoryControl();
-            m_addCategoryControl.BtnAddCategory.Click += OnAddCategoryClicked;
+            m_viewModel = viewModel;
 
+            if(m_viewModel == null)
+            {
+                throw new ArgumentException("Expected valid instance of SettingsViewModel");
+            }
+
+            DataContext = m_viewModel;
+
+            m_addCategoryControl = new AddCategoryControl();
+
+            // The control handles input, validation and creation of objects independently, so we
+            // simply display the control to the user and listen for any events where a category was
+            // successfully created.
+            m_addCategoryControl.CategoryCreated += OnFilteringCategoryCreated;
+            
             btnDeleteCategory.Click += OnDeleteCategoryClicked;
             btnShowAddCategory.Click += OnShowAddCategoryClicked;
         }
 
-        private void OnShowAddCategoryClicked(object sender, RoutedEventArgs e)
+        private void OnFilteringCategoryCreated(object sender, FilteringCategoryCreatedArgs args)
         {
-            /*
+            throw new NotImplementedException();
+        }
+
+        private void OnShowAddCategoryClicked(object sender, RoutedEventArgs e)
+        {           
             var mainWindow = Window.GetWindow(this) as MetroWindow;
             if(mainWindow != null)
             {
@@ -66,16 +94,13 @@ namespace Te.StahpIt.Views
                     rightFlyout.Content = m_addCategoryControl;
                     rightFlyout.IsOpen = !rightFlyout.IsOpen;
                 }
-            }
-            */
+            }          
         }
 
         private void OnDeleteCategoryClicked(object sender, RoutedEventArgs e)
         {
-        }
 
-        private void OnAddCategoryClicked(object sender, RoutedEventArgs e)
-        {
         }
+                
     }
 }

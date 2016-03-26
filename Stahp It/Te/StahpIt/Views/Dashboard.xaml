@@ -273,8 +273,8 @@
                                                           Mode=TwoWay,
                                                           UpdateSourceTrigger=PropertyChanged}"
                                         CanUserResize="False"
-                                        EditingElementStyle="{DynamicResource MetroDataGridCheckBox}"
-                                        ElementStyle="{DynamicResource MetroDataGridCheckBox}"
+                                        EditingElementStyle="{StaticResource MetroDataGridCheckBox}"
+                                        ElementStyle="{StaticResource MetroDataGridCheckBox}"
                                         Header="Filter"
                                         TextBlock.TextAlignment="Center" />
 

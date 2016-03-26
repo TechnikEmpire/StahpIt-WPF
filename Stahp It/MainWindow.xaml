@@ -8,7 +8,7 @@
                       Title="Stahp It"
                       Width="960"
                       Height="540"
-                      GlowBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"
+                      GlowBrush="{StaticResource {x:Static SystemColors.ActiveBorderBrushKey}}"
                       ResizeMode="CanMinimize"
                       RightWindowCommandsOverlayBehavior="Flyouts"
                       WindowStartupLocation="CenterScreen"
@@ -16,12 +16,12 @@
                       mc:Ignorable="d">
 
     <Controls:MetroWindow.Flyouts>
-        <Controls:FlyoutsControl>
+        <Controls:FlyoutsControl x:Name="m_flyoutControl" x:FieldModifier="private">
             <Controls:Flyout x:Name="rightFlyout"
                              Width="250"
                              Header="Flyout"
                              Position="Right"
-                             x:FieldModifier="internal" />
+                             x:FieldModifier="public" />
         </Controls:FlyoutsControl>
     </Controls:MetroWindow.Flyouts>
 
@@ -47,10 +47,10 @@
                        TargetType="{x:Type Controls:Tile}">
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource HighlightBrush}" />
+                            <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="False">
-                            <Setter Property="Background" Value="{DynamicResource AccentColorBrush2}" />
+                            <Setter Property="Background" Value="{StaticResource AccentColorBrush2}" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -60,10 +60,10 @@
                        TargetType="{x:Type Controls:Tile}">
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource HighlightBrush}" />
+                            <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="False">
-                            <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
+                            <Setter Property="Background" Value="{StaticResource AccentColorBrush}" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>

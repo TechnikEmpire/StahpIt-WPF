@@ -137,6 +137,45 @@ namespace Te.StahpIt.ViewModels
             }
         }
 
+        public UInt32 TotalRulesLoaded
+        {
+            get
+            {
+                if (m_category != null)
+                {
+                    return m_category.TotalRulesLoaded;
+                }
+
+                return 0;
+            }
+        }
+
+        public UInt32 TotalRulesFailed
+        {
+            get
+            {
+                if (m_category != null)
+                {
+                    return m_category.TotalFailedRules;
+                }
+
+                return 0;
+            }
+        }
+
+        public string RuleListURL
+        {
+            get
+            {
+                if (m_category != null)
+                {
+                    return m_category.RuleSourceUrl;
+                }
+
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
