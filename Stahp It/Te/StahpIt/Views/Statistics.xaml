@@ -38,8 +38,8 @@
                                      Style="{StaticResource MinimalChartStyle}"
                                      x:FieldModifier="private">
                 <chart:ClusteredBarChart.Series>
-                    <chart:ChartSeries DisplayMember="FilteringCategory.CategoryName"
-                                       ItemsSource="{Binding Path=FilterStats,
+                    <chart:ChartSeries DisplayMember="CategoryName"
+                                       ItemsSource="{Binding Path=FilterCategories,
                                                              UpdateSourceTrigger=PropertyChanged}"
                                        SeriesTitle="Blocked Requests"
                                        ValueMember="TotalRequestsBlocked" />
@@ -69,8 +69,8 @@
                                         Style="{StaticResource MinimalChartStyle}"
                                         x:FieldModifier="private">
                 <chart:ClusteredColumnChart.Series>
-                    <chart:ChartSeries DisplayMember="FilteringCategory.CategoryName"
-                                       ItemsSource="{Binding Path=FilterStats,
+                    <chart:ChartSeries DisplayMember="CategoryName"
+                                       ItemsSource="{Binding Path=FilterCategories,
                                                              UpdateSourceTrigger=PropertyChanged}"
                                        SeriesTitle="Saved Bandwidth in Kilobytes"
                                        ValueMember="TotalKilobytesBlocked" />

@@ -31,7 +31,10 @@
 
 using ByteSizeLib;
 using System;
-using System.Threading;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using Te.HttpFilteringEngine;
 
 namespace Te.StahpIt.Filtering
 {
@@ -40,14 +43,13 @@ namespace Te.StahpIt.Filtering
     /// which is supplied to the filtering Engine. FilteringCategory objects are, once loaded, given
     /// over to the user to enable and disable.
     /// </summary>
-    public class FilteringCategory
+    public class FilteringCategory : IDisposable
     {
         /// <summary>
         /// The maximum number of categories that can be set in the filtering Engine is the numeric
-        /// limits of an 8 bit integer. As such, every time we construct a new category, we need to,
-        /// in a thread safe manner, incremement this static counter and test if we've hit this limit
-        /// or not. If not, we'll store the result of the interlocked increment and use that to
-        /// represent this category's ID.
+        /// limits of an unsigned 8 bit integer. As such, every time we construct a new category, we
+        /// need to "borrow" a unique ID from the total number of possible categories. Then we a
+        /// category is destroyed, it needs to be put back. We use a ConcurrentBag for this.
         ///
         /// This ID is not really relevant for anything except to serve as a very simple identifier
         /// that the underlying Engine can use for enabling and disabling rules at the request of the
@@ -55,12 +57,28 @@ namespace Te.StahpIt.Filtering
         /// constraint on this mechanism is that the value cannot ever be zero, as zero is reserved
         /// for "do no block."
         /// </summary>
-        private static int FilteringCategoryCount = 0;
+        private static ConcurrentBag<byte> AvailableFilteringCategories;
+
+        static FilteringCategory()
+        {
+            AvailableFilteringCategories = new ConcurrentBag<byte>();
+
+            var possibleValues = Enumerable.Range(1, (byte.MaxValue - 1));
+            foreach(var entry in possibleValues)
+            {
+                AvailableFilteringCategories.Add((byte)entry);
+            }            
+        }
+
+        /// <summary>
+        /// Requires reference to the Engine, so that Enable/Disable can be used.
+        /// </summary>
+        private readonly Engine m_engine;
 
         /// <summary>
         /// The unique category ID for this instance.
         /// </summary>
-        private int m_filteringCategory;
+        private byte m_filteringCategory;
 
         /// <summary>
         /// The name given for the filtering category.
@@ -78,7 +96,7 @@ namespace Te.StahpIt.Filtering
         {
             get
             {
-                return (byte)m_filteringCategory;
+                return m_filteringCategory;
             }
         }
 
@@ -87,14 +105,29 @@ namespace Te.StahpIt.Filtering
         /// </summary>
         public bool Enabled
         {
-            get;
-            set;
+            get
+            {
+                if(m_engine != null)
+                {
+                    return m_engine.IsCategoryEnabled(CategoryId);
+                }
+
+                return false;
+            }
+
+            set
+            {
+                if(m_engine != null)
+                {
+                    m_engine.SetCategoryEnabled(CategoryId, value);
+                }
+            }
         }
 
         /// <summary>
-        /// The full URL of the source rule list for this category.
+        /// The full URI of the source rule list for this category.
         /// </summary>
-        public string RuleSourceUrl
+        public Uri RuleSource
         {
             get;
             set;
@@ -150,14 +183,63 @@ namespace Te.StahpIt.Filtering
         /// words, if more categories than this limit permits are constructed, this constructor will
         /// throw.
         /// </exception>
-        public FilteringCategory()
+        /// <exception cref="ArgumentException">
+        /// In the event that the supplied Engine reference is null, will throw ArgumentException.
+        /// </exception>
+        public FilteringCategory(Engine engine)
         {
-            m_filteringCategory = Interlocked.Increment(ref FilteringCategoryCount);
+            m_engine = engine;
 
-            if (m_filteringCategory > byte.MaxValue)
+            if(m_engine == null)
+            {
+                throw new ArgumentException("Expected valid Engine instance.");
+            }
+
+            if(!AvailableFilteringCategories.TryTake(out m_filteringCategory))
             {
                 throw new ArgumentOutOfRangeException(string.Format("Number of possible categories exceeded. Maximum number of categories is {0}.", byte.MaxValue.ToString()));
+            }           
+        }
+
+        /// <summary>
+        /// We need a destructor aka finalizer in order to decrement the static count, and also to
+        /// force the resources for a loaded list to be unloaded.
+        /// </summary>
+        ~FilteringCategory()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);            
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // Put the category ID that we took back into the collection.
+                    AvailableFilteringCategories.Add(m_filteringCategory);
+                }
+
+                if (m_engine != null)
+                {
+                    m_engine.UnloadAllRulesForCategory(m_filteringCategory);
+                }
+
+                disposedValue = true;
             }
         }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {            
+            Dispose(true);
+            
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

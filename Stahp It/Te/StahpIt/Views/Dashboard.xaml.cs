@@ -89,7 +89,7 @@ namespace Te.StahpIt.Views
 
             if(parentWindow != null)
             {
-                var result = await MahApps.Metro.Controls.Dialogs.DialogManager.ShowMessageAsync(parentWindow, "Exit Stahp It", "Are you sure you would like to fully exit? You will no longer have filtering.", MessageDialogStyle.AffirmativeAndNegative, mds);
+                var result = await DialogManager.ShowMessageAsync(parentWindow, "Exit Stahp It", "Are you sure you would like to fully exit? You will no longer have filtering.", MessageDialogStyle.AffirmativeAndNegative, mds);
 
                 if (result == MessageDialogResult.Affirmative)
                 {

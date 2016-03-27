@@ -56,7 +56,7 @@ namespace Te.StahpIt.Models
         /// <summary>
         /// Whether the application should be filtered.
         /// </summary>
-        public bool Filter = false;
+        public volatile bool Filter = false;
 
         /// <summary>
         /// Constructs a new FilteredAppModel for the given application.

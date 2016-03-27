@@ -16,13 +16,14 @@
                   Margin="20,19,20,96"
                   HorizontalAlignment="Center"
                   AutoGenerateColumns="False"
-                  ItemsSource="{Binding Path=FilteredApplications,
+                  ItemsSource="{Binding Path=FilterCategories,
                                         Mode=Default}"
                   x:FieldModifier="private">
 
             <DataGrid.ColumnHeaderStyle>
                 <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                    <Setter Property="Padding" Value="0" />
                 </Style>
             </DataGrid.ColumnHeaderStyle>
 
@@ -35,7 +36,7 @@
                                         EditingElementStyle="{StaticResource MetroDataGridCheckBox}"
                                         ElementStyle="{StaticResource MetroDataGridCheckBox}"
                                         Header="Enabled"
-                                        TextBlock.TextAlignment="Center" />
+                                        TextBlock.TextAlignment="Left" />
 
                 <DataGridTextColumn Width="128"
                                     Binding="{Binding Path=TotalRulesLoaded,
@@ -43,7 +44,7 @@
                                     CanUserReorder="False"
                                     CanUserResize="False"
                                     Header="Rules Loaded"
-                                    TextBlock.TextAlignment="Center" />
+                                    TextBlock.TextAlignment="Left" />
 
                 <DataGridTextColumn Width="128"
                                     Binding="{Binding Path=TotalRulesFailed,
@@ -51,7 +52,7 @@
                                     CanUserReorder="False"
                                     CanUserResize="False"
                                     Header="Rules Failed"
-                                    TextBlock.TextAlignment="Center" />
+                                    TextBlock.TextAlignment="Left" />
 
                 <DataGridTextColumn Width="140"
                                     Binding="{Binding Path=CategoryName,
@@ -59,15 +60,17 @@
                                     CanUserReorder="False"
                                     CanUserResize="False"
                                     Header="Category Name"
-                                    IsReadOnly="True" />
+                                    IsReadOnly="True"
+                                    TextBlock.TextAlignment="Left" />
 
                 <DataGridTextColumn Width="298"
-                                    Binding="{Binding Path=CategoryName,
+                                    Binding="{Binding Path=RuleListURL,
                                                       Mode=OneWay}"
                                     CanUserReorder="False"
                                     CanUserResize="False"
                                     Header="Source"
-                                    IsReadOnly="True" />
+                                    IsReadOnly="True"
+                                    TextBlock.TextAlignment="Left" />
             </DataGrid.Columns>
 
         </DataGrid>
@@ -108,8 +111,17 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Cursor="Hand"
-                Style="{StaticResource MetroCircleButtonStyle}"
                 x:FieldModifier="private">
+            <Button.Style>
+                <Style BasedOn="{StaticResource MetroCircleButtonStyle}" TargetType="Button">
+                    <Setter Property="IsEnabled" Value="True" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=userFilteringCategories, Path=SelectedItem}" Value="{x:Null}">
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
             <Rectangle Width="10"
                        Height="3"
                        Fill="Black">

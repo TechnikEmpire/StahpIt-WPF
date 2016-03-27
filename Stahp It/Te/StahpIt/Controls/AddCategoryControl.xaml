@@ -49,5 +49,16 @@
                 Content="Add Category"
                 Style="{StaticResource AccentedSquareButtonStyle}"
                 x:FieldModifier="private" />
+
+        <TextBlock Width="230"
+                   Height="175"
+                   Margin="10,203,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   Foreground="White"
+                   TextWrapping="Wrap"><Run Text="Rule lists must be valid HTTP or HTTPS URIs. Remember that such URIs are case sensitive." />
+            <LineBreak />
+            <LineBreak /><Run Text="Category names do not have to be unique, although for clarity, it is recommended." />
+        </TextBlock>
     </Grid>
 </UserControl>

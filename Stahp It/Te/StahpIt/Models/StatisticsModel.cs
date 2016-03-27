@@ -29,10 +29,17 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System.Collections.ObjectModel;
+using Te.StahpIt.ViewModels;
+
 namespace Te.StahpIt.Models
 {
     public class StatisticsModel
     {
-               
+        public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterCategories
+        {
+            get;
+            set;
+        }
     }
 }

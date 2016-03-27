@@ -30,6 +30,7 @@
 */
 
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Windows;
 using Te.StahpIt.Controls;
@@ -47,60 +48,142 @@ namespace Te.StahpIt.Views
         private SettingsViewModel m_viewModel;
 
         /// <summary>
-        /// 
+        /// Constructs a new Settings view with the given view model, and with the provided
+        /// AddCategoryControl control. The AddCategoryControl instance is not actually displayed
+        /// within the Settings view at all, but rather the Settings view internally finds its parent
+        /// window and shows this instance of AddCategoryControl within a flyout. This is part of the
+        /// reason why the control is supplied.
+        ///
+        /// The real reason is that presently, there is not a better solution to the problem where
+        /// the AddCategoryControl needs to hold a reference to the Engine instance that it is
+        /// creating categories for. Handing off this instance to this view or view model, then
+        /// passing it up to an internally created instance of AddCategoryControl seems like a worse
+        /// solution than this. Doing it this way, the AddCategoryControl instance is kept neatly
+        /// together with associated objects at the App code behind level. However, XXX TODO, find a
+        /// more elegant solution to this.
         /// </summary>
-        /// <param name="viewModel"></param>
+        /// <param name="viewModel">
+        /// The settings view model.
+        /// </param>
+        /// <param name="addCategoryControl">
+        /// The user control that generates, by user input, new FilteringCategory instances.
+        /// </param>
         /// <exception cref="ArgumentException">
+        /// In the event that either the supplied SettingsViewModel or AddCategoryControl instances
+        /// are null, will throw ArgumentException.
         /// </exception>
-        public Settings(SettingsViewModel viewModel)
+        public Settings(SettingsViewModel viewModel, AddCategoryControl addCategoryControl)
         {
             InitializeComponent();
 
             m_viewModel = viewModel;
 
-            if(m_viewModel == null)
+            if (m_viewModel == null)
             {
                 throw new ArgumentException("Expected valid instance of SettingsViewModel");
             }
 
-            DataContext = m_viewModel;
+            m_addCategoryControl = addCategoryControl;
 
-            m_addCategoryControl = new AddCategoryControl();
+            if (m_addCategoryControl == null)
+            {
+                throw new ArgumentException("Expected valid instance of AddCategoryControl");
+            }
+
+            DataContext = m_viewModel;
 
             // The control handles input, validation and creation of objects independently, so we
             // simply display the control to the user and listen for any events where a category was
             // successfully created.
             m_addCategoryControl.CategoryCreated += OnFilteringCategoryCreated;
-            
+
             btnDeleteCategory.Click += OnDeleteCategoryClicked;
             btnShowAddCategory.Click += OnShowAddCategoryClicked;
         }
 
         private void OnFilteringCategoryCreated(object sender, FilteringCategoryCreatedArgs args)
         {
-            throw new NotImplementedException();
-        }
-
-        private void OnShowAddCategoryClicked(object sender, RoutedEventArgs e)
-        {           
+            // First thing is to hide the flyout now that it's no longer required.
             var mainWindow = Window.GetWindow(this) as MetroWindow;
-            if(mainWindow != null)
+            if (mainWindow != null)
             {
                 Flyout rightFlyout = mainWindow.FindName("rightFlyout") as Flyout;
 
-                if(rightFlyout != null)
+                if (rightFlyout != null)
+                {
+                    rightFlyout.IsOpen = false;
+                }
+            }
+
+            Application.Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    try
+                    {
+                        m_viewModel.FilterCategories.Add(new CategorizedFilteredRequestsViewModel(args.Category));
+                    }
+                    catch(ArgumentException ae)
+                    {
+                        ShowUserMessage("Error", "Error while adding new filtering category to list.");
+                    }                    
+                }
+            );
+        }
+
+        private void OnShowAddCategoryClicked(object sender, RoutedEventArgs e)
+        {
+            var mainWindow = Window.GetWindow(this) as MetroWindow;
+            if (mainWindow != null)
+            {
+                Flyout rightFlyout = mainWindow.FindName("rightFlyout") as Flyout;
+
+                if (rightFlyout != null)
                 {
                     rightFlyout.Header = "Add New Category";
                     rightFlyout.Content = m_addCategoryControl;
                     rightFlyout.IsOpen = !rightFlyout.IsOpen;
                 }
-            }          
+            }
         }
 
-        private void OnDeleteCategoryClicked(object sender, RoutedEventArgs e)
+        private async void OnDeleteCategoryClicked(object sender, RoutedEventArgs e)
         {
+            if (userFilteringCategories.SelectedItem == null)
+            {
+                return;
+            }
 
+            MetroDialogSettings mds = new MetroDialogSettings();
+            mds.AffirmativeButtonText = "Yes";
+            mds.NegativeButtonText = "No";
+            MetroWindow parentWindow = this.TryFindParent<MetroWindow>();
+
+            if (parentWindow != null)
+            {
+                var result = await DialogManager.ShowMessageAsync(parentWindow, "Delete Category?", "Are you sure you would like to delete the selected Filtering Category?", MessageDialogStyle.AffirmativeAndNegative, mds);
+
+                if (result == MessageDialogResult.Affirmative)
+                {
+                    var castItem = userFilteringCategories.SelectedItem as CategorizedFilteredRequestsViewModel;
+
+                    if (castItem != null)
+                    {
+                        castItem.Enabled = false;
+                        Application.Current.Dispatcher.Invoke(
+                            System.Windows.Threading.DispatcherPriority.Normal,
+                            (Action)delegate ()
+                            {
+                                m_viewModel.FilterCategories.Remove(castItem);
+
+                                // Important! This must be called to ensure that the FilteringCategory class continues to
+                                // work correctly!
+                                castItem.Dispose();
+                            }
+                        );
+                    }
+                }
+            }
         }
-                
     }
 }

@@ -31,6 +31,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,19 @@ namespace Te.StahpIt.ViewModels
     {
 
         private SettingsModel m_model;
+
+        public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterCategories
+        {
+            get
+            {
+                if(m_model != null)
+                {
+                    return m_model.FilterCategories;
+                }
+
+                return null;
+            }            
+        }
 
         public bool RunAtStartup
         {
@@ -79,7 +93,7 @@ namespace Te.StahpIt.ViewModels
             if(m_model == null)
             {
                 throw new ArgumentException("Expected valid instance of SettingsModel");
-            }
+            }            
         }
         
     }

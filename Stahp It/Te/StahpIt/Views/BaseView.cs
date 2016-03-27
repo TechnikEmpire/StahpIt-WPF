@@ -29,6 +29,8 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Windows.Controls;
 
@@ -70,6 +72,30 @@ namespace Te.StahpIt.Views
             {
                 var args = new ViewChangeRequestArgs(view, data);
                 ViewChangeRequest(this, args);
+            }
+        }
+
+        /// <summary>
+        /// Displays a message to the user as an overlay, that the user can only accept.
+        /// </summary>
+        /// <param name="title">
+        /// The large title for the message overlay.
+        /// </param>
+        /// <param name="message">
+        /// The message content.
+        /// </param>
+        /// <param name="acceptButtonText">
+        /// The text to display in the acceptance button.
+        /// </param>
+        protected void ShowUserMessage(string title, string message, string acceptButtonText = "Ok")
+        {
+            MetroDialogSettings mds = new MetroDialogSettings();
+            mds.AffirmativeButtonText = acceptButtonText;
+            MetroWindow parentWindow = this.TryFindParent<MetroWindow>();
+
+            if (parentWindow != null)
+            {
+                DialogManager.ShowMessageAsync(parentWindow, title, message, MessageDialogStyle.Affirmative, mds);
             }
         }
     }

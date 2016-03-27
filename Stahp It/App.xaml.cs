@@ -32,9 +32,12 @@
 using NLog;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using Te.HttpFilteringEngine;
+using Te.StahpIt.Controls;
 using Te.StahpIt.Models;
 using Te.StahpIt.Update;
 using Te.StahpIt.ViewModels;
@@ -66,7 +69,7 @@ namespace Te.StahpIt
         /// These objects are held here, and references are given over to various view models, such
         /// as the statistics page view model, so that this information can be presented to the user.
         /// </summary>
-        private ConcurrentDictionary<byte, CategorizedFilteredRequestsViewModel> m_filteringCategories;
+        private ObservableCollection<CategorizedFilteredRequestsViewModel> m_filteringCategoriesObservable;
 
         #region APP_UI_MEMBER_VARS
 
@@ -149,7 +152,17 @@ namespace Te.StahpIt
         {
             base.OnStartup(e);
 
-            DoInit();
+            try
+            {
+                DoInit();
+            }
+            catch(Exception err)
+            {
+                m_logger.Error("During startup, encountered error: {0}.", err.Message);
+                m_logger.Error("Critical error. Exiting.");
+                App.Current.Shutdown();
+                return;
+            }            
 
             bool startMinimized = false;
             for (int i = 0; i != e.Args.Length; ++i)
@@ -212,12 +225,14 @@ namespace Te.StahpIt
             m_viewDashboard = new Dashboard(m_viewModelDashboard);
 
             m_modelStatistics = new StatisticsModel();
-            m_viewModelStatistics = new StatisticsViewModel(m_modelStatistics);
+            m_modelStatistics.FilterCategories = m_filteringCategoriesObservable;
+            m_viewModelStatistics = new StatisticsViewModel(m_modelStatistics);            
             m_viewStatistics = new Statistics(m_viewModelStatistics);
 
             m_modelSettings = new SettingsModel();
-            m_viewModelSettings = new SettingsViewModel(m_modelSettings);
-            m_viewSettings = new Settings(m_viewModelSettings);
+            m_modelSettings.FilterCategories = m_filteringCategoriesObservable;
+            m_viewModelSettings = new SettingsViewModel(m_modelSettings);            
+            m_viewSettings = new Settings(m_viewModelSettings, new AddCategoryControl(m_filteringEngine));
 
             m_primaryWindow.ViewChangeRequest += OnViewChangeRequest;
             m_viewDashboard.ViewChangeRequest += OnViewChangeRequest;
@@ -290,6 +305,7 @@ namespace Te.StahpIt
                             // Hide any active flyouts, as the way that we use them, they are always related to
                             // the current view.
                             m_primaryWindow.HideAllFlyouts();
+
                             m_primaryWindow.CurrentView.Content = viewToLoad;
                             m_primaryWindow.Title = "Stahp It" + windowTitle;
                         }
@@ -348,8 +364,8 @@ namespace Te.StahpIt
             {
                 m_logger.Error(e.Message);
             }
-
-            m_filteringCategories = new ConcurrentDictionary<byte, CategorizedFilteredRequestsViewModel>();
+                        
+            m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();
         }
 
         /// <summary>
@@ -406,19 +422,14 @@ namespace Te.StahpIt
         /// </param>
         private void OnRequestBlocked(byte category, uint payloadSizeBlocked, string fullRequest)
         {
-            CategorizedFilteredRequestsViewModel cat = null;
-
-            if (m_filteringCategories != null)
-            {
-                m_filteringCategories.TryGetValue(category, out cat);
-            }
-
             if (m_viewModelDashboard != null)
             {
                 Current.Dispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
                     (Action)delegate ()
                     {
+                        CategorizedFilteredRequestsViewModel cat = m_filteringCategoriesObservable.Single(item => item.CategoryId == category);
+
                         m_viewModelDashboard.TotalRequestsBlocked += 1;
 
                         if (cat != null)

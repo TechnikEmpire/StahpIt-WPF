@@ -38,13 +38,29 @@ namespace Te.StahpIt.ViewModels
     /// <summary>
     /// Stores statistics about blocked/filtered requests for a specified category.
     /// </summary>
-    public class CategorizedFilteredRequestsViewModel : BaseViewModel
+    public class CategorizedFilteredRequestsViewModel : BaseViewModel, IDisposable
     {
 
         /// <summary>
         /// The underlying FilteringCategory instance to and from which values are served or set.
         /// </summary>
         private FilteringCategory m_category;
+
+        /// <summary>
+        /// The unique ID of the category.
+        /// </summary>
+        public byte CategoryId
+        {
+            get
+            {
+                if (m_category != null)
+                {
+                    return m_category.CategoryId;
+                }
+
+                return 0;
+            }
+        }
 
         /// <summary>
         /// The category that the requests were blocked/filtered by.
@@ -169,7 +185,7 @@ namespace Te.StahpIt.ViewModels
             {
                 if (m_category != null)
                 {
-                    return m_category.RuleSourceUrl;
+                    return m_category.RuleSource.OriginalString;
                 }
 
                 return string.Empty;
@@ -191,5 +207,28 @@ namespace Te.StahpIt.ViewModels
                 throw new ArgumentException("Expected valid FilteringCategory instance.");
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    m_category.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {           
+            Dispose(true);            
+        }
+        #endregion
     }
 }

@@ -42,10 +42,17 @@ namespace Te.StahpIt.ViewModels
         /// </summary>
         private StatisticsModel m_model;        
 
-        public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterStats
+        public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterCategories
         {
-            get;
-            set;
+            get
+            {
+                if(m_model != null)
+                {
+                    return m_model.FilterCategories;
+                }
+
+                return null;
+            }
         }
 
         public object SelectedItem
@@ -69,8 +76,6 @@ namespace Te.StahpIt.ViewModels
             {
                 throw new ArgumentException("Expected valid StatisticsModel instance.");
             }
-
-            FilterStats = new ObservableCollection<CategorizedFilteredRequestsViewModel>();
         }
     }
 }

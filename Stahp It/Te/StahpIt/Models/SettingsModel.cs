@@ -31,14 +31,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Te.StahpIt.ViewModels;
 
 namespace Te.StahpIt.Models
 {
     public class SettingsModel
     {
+        public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterCategories
+        {
+            get;
+            set;
+        }
+
         public bool RunAtStartup
         {
             get;
