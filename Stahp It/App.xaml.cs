@@ -29,19 +29,26 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Newtonsoft.Json;
 using NLog;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using Te.HttpFilteringEngine;
 using Te.StahpIt.Controls;
+using Te.StahpIt.Filtering;
 using Te.StahpIt.Models;
+using Te.StahpIt.Serialization.Json.Converters;
 using Te.StahpIt.Update;
 using Te.StahpIt.ViewModels;
 using Te.StahpIt.Views;
+using Te.StahpIt.Windows;
 
 namespace Te.StahpIt
 {
@@ -142,6 +149,10 @@ namespace Te.StahpIt
 
         #endregion APP_UPDATE_MEMBER_VARS
 
+        private BackgroundWorker m_backgroundInitWorker;
+
+        private Splash m_splashScreen;
+
         /// <summary>
         /// Entry point for the application.
         /// </summary>
@@ -152,22 +163,56 @@ namespace Te.StahpIt
         {
             base.OnStartup(e);
 
+            m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();           
+
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+
+            m_splashScreen = new Splash();
+            m_splashScreen.Show();
+
+            m_backgroundInitWorker = new BackgroundWorker();
+            m_backgroundInitWorker.DoWork += DoBackgroundInit;
+            m_backgroundInitWorker.RunWorkerCompleted += OnBackgroundInitComplete;
+
+            m_backgroundInitWorker.RunWorkerAsync(e);
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if(m_logger != null)
+            {
+                var err = e.ExceptionObject as Exception;
+                m_logger.Error(err.Message);
+            }
+        }
+
+        private void DoBackgroundInit(object sender, DoWorkEventArgs e)
+        {
             try
             {
                 DoInit();
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 m_logger.Error("During startup, encountered error: {0}.", err.Message);
+                m_logger.Error(err.StackTrace);
                 m_logger.Error("Critical error. Exiting.");
-                App.Current.Shutdown();
+                Current.Dispatcher.Invoke(
+                    System.Windows.Threading.DispatcherPriority.Normal,
+                    (Action)delegate ()
+                    {
+                        Current.Shutdown();
+                    }
+                );                
                 return;
-            }            
+            }
+
+            var startupArgs = e.Argument as StartupEventArgs;
 
             bool startMinimized = false;
-            for (int i = 0; i != e.Args.Length; ++i)
+            for (int i = 0; i != startupArgs.Args.Length; ++i)
             {
-                if (e.Args[i].Equals("/StartMinimized", StringComparison.OrdinalIgnoreCase))
+                if (startupArgs.Args[i].Equals("/StartMinimized", StringComparison.OrdinalIgnoreCase))
                 {
                     startMinimized = true;
                     break;
@@ -180,6 +225,33 @@ namespace Te.StahpIt
             }
         }
 
+        private void OnBackgroundInitComplete(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if(e.Cancelled || e.Error != null)
+            {
+                m_logger.Error("Error during initialization.");
+                if (e.Error != null && m_logger != null)
+                {
+                    m_logger.Error(e.Error.Message);
+                    m_logger.Error(e.Error.StackTrace);
+                }
+
+                //Current.Shutdown(-1);
+                return;          
+            }
+            
+            Current.Dispatcher.Invoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    Exit += OnApplicationShutdown;
+                    m_splashScreen.Hide();
+                    m_primaryWindow.Show();
+                    OnViewChangeRequest(this, new ViewChangeRequestArgs(View.Dashboard));
+                }
+            );                        
+        }
+
         /// <summary>
         /// Calls all other init methods, which are split up into ordered, logical groupings.
         /// </summary>
@@ -187,10 +259,19 @@ namespace Te.StahpIt
         {
             //InitWinsparkle();
             InitEngine();
-            InitTrayIcon();
-            InitViews();
 
-            Exit += OnApplicationShutdown;
+            try
+            {
+                // Attempt to load program state, if exists.
+                LoadProgramState();
+            }
+            catch(Exception err)
+            {
+                m_logger.Error("Error while loading program state: {0}.", err.Message);
+            }
+            
+            InitTrayIcon();
+            InitViews();            
         }
 
         private void OnApplicationShutdown(object sender, ExitEventArgs e)
@@ -199,6 +280,15 @@ namespace Te.StahpIt
             {
                 m_filteringEngine.Stop();
             }
+
+            try
+            {
+                SaveProgramState();
+            }
+            catch(Exception err)
+            {
+                m_logger.Error("Error while saving program state: {0}.", err.Message);
+            }            
         }
 
         /// <summary>
@@ -212,34 +302,66 @@ namespace Te.StahpIt
                 throw new Exception("Engine must be initialized prior to initializing views, as views require references to allow user control.");
             }
 
+            // We null check, because if the save state load worked, these conditions will be
+            // false and we won't overwrite our restored state.
+
             // This collection is initialized here because it has a direct connection to the UI.
-            m_filteredApplicationsTable = new ConcurrentDictionary<string, FilteredAppModel>();
+            if (m_filteredApplicationsTable == null)
+            {
+                m_filteredApplicationsTable = new ConcurrentDictionary<string, FilteredAppModel>();
+            }                        
 
-            m_primaryWindow = new MainWindow();
-            m_primaryWindow.Show();
+            if(m_modelDashboard == null)
+            {
+                m_modelDashboard = new DashboardModel(m_filteringEngine);
+            }
+            
+            if(m_viewModelDashboard == null)
+            {
+                m_viewModelDashboard = new DashboardViewModel(m_modelDashboard);
+            }   
 
-            m_viewProgressWait = new ProgressWait();
+            if(m_modelStatistics == null)
+            {
+                m_modelStatistics = new StatisticsModel();
+            }
 
-            m_modelDashboard = new DashboardModel(m_filteringEngine);
-            m_viewModelDashboard = new DashboardViewModel(m_modelDashboard);
-            m_viewDashboard = new Dashboard(m_viewModelDashboard);
+            if(m_viewModelStatistics == null)
+            {
+                m_viewModelStatistics = new StatisticsViewModel(m_modelStatistics);
+            }
 
-            m_modelStatistics = new StatisticsModel();
-            m_modelStatistics.FilterCategories = m_filteringCategoriesObservable;
-            m_viewModelStatistics = new StatisticsViewModel(m_modelStatistics);            
-            m_viewStatistics = new Statistics(m_viewModelStatistics);
+            if(m_modelSettings == null)
+            {
+                m_modelSettings = new SettingsModel();
+            }
 
-            m_modelSettings = new SettingsModel();
-            m_modelSettings.FilterCategories = m_filteringCategoriesObservable;
-            m_viewModelSettings = new SettingsViewModel(m_modelSettings);            
-            m_viewSettings = new Settings(m_viewModelSettings, new AddCategoryControl(m_filteringEngine));
+            if(m_viewModelSettings == null)
+            {
+                m_viewModelSettings = new SettingsViewModel(m_modelSettings);
+            }
 
-            m_primaryWindow.ViewChangeRequest += OnViewChangeRequest;
-            m_viewDashboard.ViewChangeRequest += OnViewChangeRequest;
-            m_viewStatistics.ViewChangeRequest += OnViewChangeRequest;
-            m_viewSettings.ViewChangeRequest += OnViewChangeRequest;
+            // Necessary because we use a background worker. This thread != UI thread.
+            Current.Dispatcher.Invoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    m_modelStatistics.FilterCategories = m_filteringCategoriesObservable;
+                    m_modelSettings.FilterCategories = m_filteringCategoriesObservable;
 
-            OnViewChangeRequest(this, new ViewChangeRequestArgs(View.Dashboard));
+                    m_primaryWindow = new MainWindow();
+                    m_viewProgressWait = new ProgressWait();
+                    m_viewStatistics = new Statistics(m_viewModelStatistics);
+                    m_viewDashboard = new Dashboard(m_viewModelDashboard);
+                    m_viewSettings = new Settings(m_viewModelSettings, new AddCategoryControl(m_filteringEngine));
+
+                    m_primaryWindow.ViewChangeRequest += OnViewChangeRequest;
+                    m_viewDashboard.ViewChangeRequest += OnViewChangeRequest;
+                    m_viewStatistics.ViewChangeRequest += OnViewChangeRequest;
+                    m_viewSettings.ViewChangeRequest += OnViewChangeRequest;
+                }
+            );
+                      
         }
 
         /// <summary>
@@ -255,6 +377,8 @@ namespace Te.StahpIt
         {
             BaseView viewToLoad = null;
             string windowTitle = string.Empty;
+
+            bool mainMenuEnabled = true;
 
             switch (e.View)
             {
@@ -276,6 +400,8 @@ namespace Te.StahpIt
                                 m_viewProgressWait.SetMessage(e.Data as string);
                             }
                         }
+
+                        mainMenuEnabled = false;
                     }
                     break;
 
@@ -305,6 +431,16 @@ namespace Te.StahpIt
                             // Hide any active flyouts, as the way that we use them, they are always related to
                             // the current view.
                             m_primaryWindow.HideAllFlyouts();
+
+                            // Progress view requires main menu to be disabled
+                            if(mainMenuEnabled)
+                            {
+                                m_primaryWindow.EnableMainMenu();
+                            }
+                            else
+                            {
+                                m_primaryWindow.DisableMainMenu();
+                            }
 
                             m_primaryWindow.CurrentView.Content = viewToLoad;
                             m_primaryWindow.Title = "Stahp It" + windowTitle;
@@ -364,8 +500,6 @@ namespace Te.StahpIt
             {
                 m_logger.Error(e.Message);
             }
-                        
-            m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();
         }
 
         /// <summary>
@@ -422,6 +556,8 @@ namespace Te.StahpIt
         /// </param>
         private void OnRequestBlocked(byte category, uint payloadSizeBlocked, string fullRequest)
         {
+            Debug.WriteLine("Total Bytes Blocked: {0}", payloadSizeBlocked);
+
             if (m_viewModelDashboard != null)
             {
                 Current.Dispatcher.BeginInvoke(
@@ -431,10 +567,12 @@ namespace Te.StahpIt
                         CategorizedFilteredRequestsViewModel cat = m_filteringCategoriesObservable.Single(item => item.CategoryId == category);
 
                         m_viewModelDashboard.TotalRequestsBlocked += 1;
+                        m_viewModelDashboard.TotalBytesBlocked += payloadSizeBlocked;
 
                         if (cat != null)
                         {
                             cat.TotalRequestsBlocked += 1;
+                            cat.TotalBytesBlocked += payloadSizeBlocked;
                         }
                     }
                 );
@@ -576,6 +714,134 @@ namespace Te.StahpIt
 
             //m_logger.Info(string.Format("Denying binary {0} internet access.", binaryFullPath));
             return false;
+        }
+
+        private void SaveProgramState()
+        {
+            var stateOutputDir = AppDomain.CurrentDomain.BaseDirectory + @"User\";
+
+            if(!Directory.Exists(stateOutputDir))
+            {
+                Directory.CreateDirectory(stateOutputDir);
+            }
+
+            if(m_modelDashboard != null)
+            {
+                var dashboardStats = JsonConvert.SerializeObject(m_modelDashboard);
+
+                File.WriteAllText(stateOutputDir + "Dashboard.json", dashboardStats);
+            }
+            
+            if(m_filteredApplicationsTable != null)
+            {
+                var filteredApplicationsSerialized = JsonConvert.SerializeObject(m_filteredApplicationsTable);
+
+                File.WriteAllText(stateOutputDir + "FilteredApps.json", filteredApplicationsSerialized);
+            }
+
+            if(m_filteringCategoriesObservable != null)
+            {
+
+                // XXX TODO - This is a bit of a filthy hack. See
+                // https://github.com/TechnikEmpire/StahpIt-WPF/issues/1
+                //
+                // We need to get a list, then push the CategorizedFilteredRequestsViewModel.Category
+                // member, which is a FilteringCategory object to a new list and serialize it.
+                var asList = m_filteringCategoriesObservable.ToList();
+
+                var filteringCatList = new List<FilteringCategory>();
+
+                foreach(var entry in asList)
+                {
+                    filteringCatList.Add(entry.Category);
+                }
+
+                var filterCategoriesSerialized = JsonConvert.SerializeObject(filteringCatList);
+
+                File.WriteAllText(stateOutputDir + "FilterCategories.json", filterCategoriesSerialized);
+            }
+        }
+
+        private void LoadProgramState()
+        {
+            var stateOutputDir = AppDomain.CurrentDomain.BaseDirectory + @"User\";
+
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.Converters.Add(new FilteringCategoryConverter(m_filteringEngine));
+            settings.Converters.Add(new DashboardConverter(m_filteringEngine));
+            settings.Converters.Add(new FilteredAppConverter());
+
+            // This thread != UI thread.
+
+            Current.Dispatcher.Invoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    if (m_filteringCategoriesObservable == null)
+                    {
+                        m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();
+                    }
+                }
+            );            
+
+            // Restore filtering categories.
+            if (File.Exists(stateOutputDir + "FilterCategories.json"))
+            {               
+                var filterCatsSerialized = File.ReadAllText(stateOutputDir + "FilterCategories.json");
+
+                var filteringCatsList = JsonConvert.DeserializeObject<List<FilteringCategory>>(filterCatsSerialized, settings);
+
+                foreach(var filteringList in filteringCatsList)
+                {
+
+                    // Ensure lists are up to date.
+                    try
+                    {
+                        filteringList.UpdateAndLoad();
+
+                        Current.Dispatcher.Invoke(
+                            System.Windows.Threading.DispatcherPriority.Normal,
+                            (Action)delegate ()
+                            {
+                                m_filteringCategoriesObservable.Add(new CategorizedFilteredRequestsViewModel(filteringList));
+                            }
+                        );
+                    }
+                    catch (Exception err)
+                    {
+                        m_logger.Error("Error while updating filtering list: {0}.", err.Message);
+                    }
+                }
+            }
+
+            // Restore dashboard stats.
+            if(File.Exists(stateOutputDir + "Dashboard.json"))
+            {
+                var dashboardSerialized = File.ReadAllText(stateOutputDir + "Dashboard.json");
+
+                m_modelDashboard = JsonConvert.DeserializeObject<DashboardModel>(dashboardSerialized, settings);
+                m_viewModelDashboard = new DashboardViewModel(m_modelDashboard);
+            }
+
+            // Restore filtered apps.
+            if (File.Exists(stateOutputDir + "FilteredApps.json"))
+            {
+                var filteredAppsSerialized = File.ReadAllText(stateOutputDir + "FilteredApps.json");
+
+                m_filteredApplicationsTable = JsonConvert.DeserializeObject<ConcurrentDictionary<string, FilteredAppModel>>(filteredAppsSerialized, settings);
+
+                foreach (var entry in m_filteredApplicationsTable)
+                {
+                    m_logger.Info(entry.Key);
+                    Current.Dispatcher.Invoke(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        (Action)delegate ()
+                        {
+                            m_viewModelDashboard.FilteredApplications.Add(new FilteredAppViewModel(entry.Value));
+                        }
+                    );
+                }
+            }
         }
     }
 }

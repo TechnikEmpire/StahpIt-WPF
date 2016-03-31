@@ -29,6 +29,7 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using ByteSizeLib;
 using System;
 using System.ComponentModel;
 using System.Windows.Media;
@@ -127,6 +128,33 @@ namespace Te.StahpIt.ViewModels
                 }
 
                 return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Total bytes blocked all-time, all categories.
+        /// </summary>
+        public double TotalBytesBlocked
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.TotalDataBlocked.Bytes;
+                }
+
+                return 0;
+            }
+
+            set
+            {
+                if (m_model != null)
+                {
+                    m_model.TotalDataBlocked = ByteSize.FromBytes(value);
+
+                    PropertyHasChanged("TotalBytesBlocked");
+                    PropertyHasChanged("TotalDataBlockedString");
+                }
             }
         }
 

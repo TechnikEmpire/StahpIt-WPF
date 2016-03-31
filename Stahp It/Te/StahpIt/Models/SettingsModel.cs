@@ -29,28 +29,86 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using Te.StahpIt.ViewModels;
 
 namespace Te.StahpIt.Models
 {
     public class SettingsModel
     {
+        [JsonIgnore]
         public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterCategories
         {
             get;
             set;
         }
 
+        [JsonIgnore]
         public bool RunAtStartup
         {
-            get;
-            set;
+            get
+            {
+                Process p = new Process();
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                p.StartInfo.FileName = "schtasks";
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.Arguments += "/nh /fo TABLE /tn \"Stahp It\"";
+                p.StartInfo.RedirectStandardError = true;
+                p.Start();
+
+                string output = p.StandardOutput.ReadToEnd();
+                string errorOutput = p.StandardError.ReadToEnd();
+
+                p.WaitForExit();
+
+                if(p.ExitCode == 0 && output.IndexOf("Stahp It") != -1)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            set
+            {
+                Process p = new Process();
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                p.StartInfo.FileName = "schtasks";
+                p.StartInfo.CreateNoWindow = true;                
+                p.StartInfo.RedirectStandardError = true;
+
+                switch (value)
+                {
+                    case true:
+                        {
+                            string createTaskCommand = "/create /F /sc onlogon /tn \"Stahp It\" /rl highest /tr \"'" + System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName + "'/StartMinimized\"";
+                            p.StartInfo.Arguments += createTaskCommand;
+
+                            // Only create an entry if there isn't already one.
+                            if(RunAtStartup == false)
+                            {
+                                p.Start();
+                                p.WaitForExit();
+                            }                            
+                        }
+                        break;
+                    case false:
+                        {
+                            string deleteTaskCommand = "/delete /F /tn \"Stahp It\"";
+                            p.StartInfo.Arguments += deleteTaskCommand;
+                            p.Start();
+                            p.WaitForExit();
+                        }
+                        break;
+                }                
+            }
         }
 
         public SettingsModel()

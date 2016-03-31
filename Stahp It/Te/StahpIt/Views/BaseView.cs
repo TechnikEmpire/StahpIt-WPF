@@ -31,6 +31,7 @@
 
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using NLog;
 using System;
 using System.Windows.Controls;
 
@@ -50,11 +51,16 @@ namespace Te.StahpIt.Views
         public event ViewChangeRequestCallback ViewChangeRequest;
 
         /// <summary>
+        /// Logger for views.
+        /// </summary>
+        protected readonly Logger m_logger;
+
+        /// <summary>
         /// Default ctor.
         /// </summary>
         public BaseView()
         {
-
+            m_logger = LogManager.GetLogger("StahpIt");
         }
 
         /// <summary>

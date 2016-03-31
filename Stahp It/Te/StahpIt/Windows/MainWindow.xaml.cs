@@ -32,7 +32,7 @@
 using MahApps.Metro.Controls;
 using Te.StahpIt.Views;
 
-namespace Te.StahpIt
+namespace Te.StahpIt.Windows
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -70,6 +70,22 @@ namespace Te.StahpIt
                 var args = new ViewChangeRequestArgs(view, data);
                 ViewChangeRequest(this, args);
             }
+        }
+
+        public void EnableMainMenu()
+        {
+            btnDashboard.IsEnabled = true;
+            btnSettings.IsEnabled = true;
+            btnStatistics.IsEnabled = true;
+            btnEnvImpact.IsEnabled = true;
+        }
+
+        public void DisableMainMenu()
+        {
+            btnDashboard.IsEnabled = false;
+            btnSettings.IsEnabled = false;
+            btnStatistics.IsEnabled = false;
+            btnEnvImpact.IsEnabled = false;
         }
 
         /// <summary>

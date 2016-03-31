@@ -30,10 +30,16 @@
 */
 
 using ByteSizeLib;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Te.HttpFilteringEngine;
 
 namespace Te.StahpIt.Filtering
@@ -92,6 +98,7 @@ namespace Te.StahpIt.Filtering
         /// <summary>
         /// The unique ID for the category.
         /// </summary>
+        [JsonIgnore]
         public byte CategoryId
         {
             get
@@ -102,7 +109,7 @@ namespace Te.StahpIt.Filtering
 
         /// <summary>
         /// Indicates whether or not this category is enabled in the filtering Engine.
-        /// </summary>
+        /// </summary>        
         public bool Enabled
         {
             get
@@ -119,7 +126,7 @@ namespace Te.StahpIt.Filtering
             {
                 if(m_engine != null)
                 {
-                    m_engine.SetCategoryEnabled(CategoryId, value);
+                    m_engine.SetCategoryEnabled(CategoryId, value);                    
                 }
             }
         }
@@ -136,7 +143,7 @@ namespace Te.StahpIt.Filtering
         /// <summary>
         /// The total bytes blocked for this category.
         /// </summary>
-        public ByteSize TotalBytesBlocked
+        public ByteSize TotalDataBlocked
         {
             get;
             set;
@@ -172,6 +179,19 @@ namespace Te.StahpIt.Filtering
             set;
         }
 
+        private string ListFilePath
+        {
+            get
+            {
+                using (SHA256Managed sha = new SHA256Managed())
+                {
+                    byte[] hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(CategoryName + RuleSource.ToString()));
+                    string listHash = BitConverter.ToString(hash).Replace("-", string.Empty);
+                    return AppDomain.CurrentDomain.BaseDirectory + @"rules\" + listHash + ".rules";
+                }                    
+            }
+        }
+
         /// <summary>
         /// Constructs a new filtering category. All members must be manually set, barring the ID.
         /// This is automatically generated within the constructor.
@@ -202,8 +222,172 @@ namespace Te.StahpIt.Filtering
         }
 
         /// <summary>
-        /// We need a destructor aka finalizer in order to decrement the static count, and also to
-        /// force the resources for a loaded list to be unloaded.
+        /// Updates, if necessary, the rule list and loads it into the Engine for use.
+        /// </summary>
+        /// <exception cref="WebException">
+        /// If updating, while attempting to download the list source, this exception may be thrown
+        /// by the WebClient. This exception is not handled internally in order to allow users of the
+        /// model to handle them. This exception will also be manually thrown if no file is present
+        /// after the download.
+        /// </exception>
+        /// <exception cref="NotSupportedException">
+        /// If updating, while attempting to download the list source, this exception may be thrown
+        /// by the WebClient. This exception is not handled internally in order to allow users of the
+        /// model to handle them. This exception may also be thrown if the file downloaded is larger
+        /// than a hard-coded accepted memory limit.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// If updating, while attempting to parse the date, this exception may be thrown. This
+        /// exception is not handled internally in order to allow users of the model to handle them.
+        /// </exception>
+        /// <exception cref="FormatException">
+        /// If updating, while attempting to parse the date, this exception may be thrown. This
+        /// exception is not handled internally in order to allow users of the model to handle them.
+        /// </exception>
+        public void UpdateAndLoad()
+        {
+            var listPath = ListFilePath;
+
+            // Ensure that the correct directories exist. Always.
+            Directory.CreateDirectory(Path.GetDirectoryName(listPath));
+
+            if (IsListExpired())
+            {               
+                using (WebClient webClient = new WebClient())
+                {
+                    webClient.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/5.0 (Windows NT x.y; rv:10.0) Gecko/20100101 Firefox/10.0");
+
+                    webClient.DownloadFile(RuleSource, listPath);                    
+                }
+            }
+
+            if (File.Exists(listPath))
+            {
+                var fileNfo = new FileInfo(listPath);
+
+                if (fileNfo.Length > ((1000 * 1000) * 10))
+                {
+                    throw new NotSupportedException("List file size exceeds 10MB");
+                }
+            }
+            else
+            {
+                throw new WebException("Failed to download list.");
+            }
+
+            if (m_engine != null)
+            {
+                Debug.WriteLine("Loading list to Engine.");
+                var listContents = File.ReadAllText(listPath);
+
+                uint loaded = 0;
+                uint failed = 0;
+                m_engine.LoadAbpFormattedString(listContents, m_filteringCategory, true, out loaded, out failed);
+
+                Debug.WriteLine(string.Format("{0} loaded and {1} failed.", loaded, failed));
+
+                TotalRulesLoaded = loaded;
+                TotalFailedRules = failed;
+            }
+            else
+            {
+                Debug.WriteLine("Engine is null!");
+            }
+        }
+
+        /// <summary>
+        /// Checks if the current list is expired.
+        /// </summary>
+        /// <returns>
+        /// True if the list is expired or non-existant on the filesystem, false if the list is
+        /// present and up to date.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// While attempting to parse the date, this exception may be thrown. This exception is not
+        /// handled internally in order to allow users of the model to handle them.
+        /// </exception>
+        /// <exception cref="FormatException">
+        /// While attempting to parse the date, this exception may be thrown. This exception is not
+        /// handled internally in order to allow users of the model to handle them.
+        /// </exception>
+        private bool IsListExpired()
+        {
+            var filePath = ListFilePath;
+
+            if (!File.Exists(filePath))
+            {
+                return true;
+            }
+
+            string fileContents = File.ReadAllText(filePath);
+
+            DateTime? expiryDate = null;
+
+            int expiryDays = -1;
+
+            using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (BufferedStream bufferedStream = new BufferedStream(fileStream))
+            using (StreamReader streamReader = new StreamReader(bufferedStream))
+            {
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    var lastModified = line.IndexOf("Last modified:");
+
+                    if (lastModified != -1)
+                    {
+                        var dateTimeStr = line.Substring(lastModified + "Last modified:".Length).Trim();
+
+                        var cultureInfo = new CultureInfo("en-US");
+
+                        expiryDate = DateTime.ParseExact(dateTimeStr, "dd MMM yyyy HH:mm \\U\\T\\C", cultureInfo);
+                        continue;
+                    }
+
+                    var expires = line.IndexOf("Expires:");
+
+                    if (expires != -1)
+                    {
+                        var expiresString = line.Substring(expires + "Expires:".Length).Trim();
+
+                        var regexMatch = Regex.Match(expiresString, "([0-9]+) days(.*)");
+
+                        if (regexMatch.Success && regexMatch.Groups.Count > 0)
+                        {
+                            int.TryParse(regexMatch.Groups[0].Value, out expiryDays);
+
+                            // Quit early if we can.
+                            if (expiryDate.HasValue)
+                            {
+                                break;
+                            }
+                        }
+
+                        continue;
+                    }
+                }
+            }
+
+            if(expiryDate.HasValue)
+            {
+                // Default to 4 day expiry time.
+                if(expiryDays == -1)
+                {
+                    expiryDays = 4;
+                }
+
+                if(expiryDate.Value.AddDays(expiryDays) < DateTime.Now)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// We need a destructor aka finalizer in order to force the resources for a loaded list to
+        /// be unloaded.
         /// </summary>
         ~FilteringCategory()
         {
@@ -220,10 +404,19 @@ namespace Te.StahpIt.Filtering
             {
                 if (disposing)
                 {
+                    // Delete the list so we don't cause conflicts when the ID is recycled.
+                    var listFilePath = ListFilePath;
+
+                    if(File.Exists(listFilePath))
+                    {
+                        File.Delete(listFilePath);
+                    }
+
                     // Put the category ID that we took back into the collection.
-                    AvailableFilteringCategories.Add(m_filteringCategory);
+                    AvailableFilteringCategories.Add(m_filteringCategory);                    
                 }
 
+                // XXX TODO should we do this before putting back the ID?
                 if (m_engine != null)
                 {
                     m_engine.UnloadAllRulesForCategory(m_filteringCategory);

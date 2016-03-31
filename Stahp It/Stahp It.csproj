@@ -186,6 +186,9 @@
       <DependentUpon>AddCategoryControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Te\StahpIt\Models\SettingsModel.cs" />
+    <Compile Include="Te\StahpIt\Serialization\Json\Converters\DashboardConverter.cs" />
+    <Compile Include="Te\StahpIt\Serialization\Json\Converters\FilteredAppConverter.cs" />
+    <Compile Include="Te\StahpIt\Serialization\Json\Converters\FilteringCategoryConverter.cs" />
     <Compile Include="Te\StahpIt\ViewModels\CategorizedFilteredRequestsViewModel.cs" />
     <Compile Include="Te\StahpIt\Models\DashboardModel.cs" />
     <Compile Include="Te\StahpIt\Models\FilteredAppModel.cs" />
@@ -208,10 +211,13 @@
     <Compile Include="Te\StahpIt\Views\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Te\StahpIt\Windows\Splash.xaml.cs">
+      <DependentUpon>Splash.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Te\StahpIt\Views\Statistics.xaml.cs">
       <DependentUpon>Statistics.xaml</DependentUpon>
     </Compile>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Te\StahpIt\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -219,7 +225,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Te\StahpIt\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -243,6 +249,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Te\StahpIt\Windows\Splash.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Te\StahpIt\Views\Statistics.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -262,6 +272,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="Resources\Media\splash.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Resources\Entypo-license.txt" />
     <Resource Include="Resources\WindowsIcons-license.txt" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -276,9 +289,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

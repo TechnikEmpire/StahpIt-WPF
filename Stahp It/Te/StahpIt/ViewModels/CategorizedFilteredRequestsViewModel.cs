@@ -47,6 +47,19 @@ namespace Te.StahpIt.ViewModels
         private FilteringCategory m_category;
 
         /// <summary>
+        /// This shouldn't be in here. This is only put here to make serialization while
+        /// saving/restoring state of the application easy. There is definitely a better way to do
+        /// this, but this is a XXX TODO.
+        /// </summary>
+        public FilteringCategory Category
+        {
+            get
+            {
+                return m_category;
+            }
+        }
+
+        /// <summary>
         /// The unique ID of the category.
         /// </summary>
         public byte CategoryId
@@ -79,7 +92,36 @@ namespace Te.StahpIt.ViewModels
         }
 
         /// <summary>
-        /// The total bytes blocked for this category.
+        /// Total bytes blocked for the category.
+        /// </summary>
+        public double TotalBytesBlocked
+        {
+            get
+            {
+                if (m_category != null)
+                {
+                    return m_category.TotalDataBlocked.Bytes;
+                }
+
+                return 0;
+            }
+
+            set
+            {
+                if (m_category != null)
+                {
+                    m_category.TotalDataBlocked = ByteSize.FromBytes(value);
+
+                    PropertyHasChanged("TotalBytesBlocked");
+
+                    // Also update KB blocked since its read only.
+                    PropertyHasChanged("TotalKilobytesBlocked");              
+                }
+            }
+        }
+
+        /// <summary>
+        /// The total Kilobytes blocked for this category.
         /// </summary>
         public double TotalKilobytesBlocked
         {
@@ -87,19 +129,10 @@ namespace Te.StahpIt.ViewModels
             {
                 if (m_category != null)
                 {
-                    return m_category.TotalBytesBlocked.KiloBytes;
+                    return m_category.TotalDataBlocked.KiloBytes;
                 }
 
                 return 0d;
-            }
-
-            set
-            {
-                if (m_category != null)
-                {
-                    m_category.TotalBytesBlocked = new ByteSize().AddKiloBytes(value);
-                    PropertyHasChanged("TotalKilobytesBlocked");
-                }
             }
         }
 

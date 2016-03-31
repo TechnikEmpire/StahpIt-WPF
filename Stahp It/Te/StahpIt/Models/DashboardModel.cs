@@ -30,6 +30,7 @@
 */
 
 using ByteSizeLib;
+using Newtonsoft.Json;
 using System;
 using Te.HttpFilteringEngine;
 
@@ -47,6 +48,7 @@ namespace Te.StahpIt.Models
         /// <summary>
         /// Gets or sets whether or not filtering is enabled.
         /// </summary>
+        [JsonIgnore]
         public bool FilteringEnabled
         {
             get
@@ -119,11 +121,12 @@ namespace Te.StahpIt.Models
         /// A string representation of the total amount of data prevented from download due to
         /// request blocking.
         /// </summary>
+        [JsonIgnore]
         public string TotalDataBlockedString
         {
             get
             {
-                return TotalDataBlocked.LargestWholeNumberValue.ToString() + TotalDataBlocked.LargestWholeNumberSymbol;
+                return string.Format("{0} {1}", Math.Round(TotalDataBlocked.LargestWholeNumberValue, 2).ToString(), TotalDataBlocked.LargestWholeNumberSymbol);
             }
         }
     }

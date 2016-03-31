@@ -29,6 +29,7 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Newtonsoft.Json;
 using System;
 using System.IO;
 
@@ -43,20 +44,36 @@ namespace Te.StahpIt.Models
     /// </summary>
     public class FilteredAppModel
     {
+        private string m_applicationName;
+
+        private string m_applicationPath;
+
         /// <summary>
         /// Application name without path or file extension.
         /// </summary>
-        public string ApplicationName = string.Empty;
+        public string ApplicationName
+        {
+            get
+            {
+                return m_applicationName;
+            }
+        }
 
         /// <summary>
         /// Full path to the application binary.
         /// </summary>
-        public string ApplicationPath = string.Empty;
+        public string ApplicationPath
+        {
+            get
+            {
+                return m_applicationPath;
+            }
+        }
 
         /// <summary>
         /// Whether the application should be filtered.
         /// </summary>
-        public volatile bool Filter = false;
+        public volatile bool Filter;
 
         /// <summary>
         /// Constructs a new FilteredAppModel for the given application.
@@ -82,9 +99,11 @@ namespace Te.StahpIt.Models
                 throw new ArgumentException("Supplied path points to non-existant binary file.");
             }
 
-            ApplicationPath = appPath;
+            m_applicationPath = appPath;
 
-            ApplicationName = Path.GetFileNameWithoutExtension(ApplicationPath);
+            m_applicationName = Path.GetFileNameWithoutExtension(ApplicationPath);
+
+            Filter = filter;
         }
     }
 }

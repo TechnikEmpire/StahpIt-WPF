@@ -58,15 +58,6 @@ namespace Te.StahpIt.ViewModels
 
                 return string.Empty;
             }
-
-            set
-            {
-                if (m_model != null && !m_model.ApplicationName.Equals(value, StringComparison.OrdinalIgnoreCase))
-                {
-                    m_model.ApplicationName = value;
-                    PropertyHasChanged("AppName");
-                }
-            }
         }
 
         /// <summary>
@@ -82,15 +73,6 @@ namespace Te.StahpIt.ViewModels
                 }
 
                 return string.Empty;
-            }
-
-            set
-            {
-                if (m_model != null && !m_model.ApplicationPath.Equals(value, StringComparison.OrdinalIgnoreCase))
-                {
-                    m_model.ApplicationPath = value;
-                    PropertyHasChanged("AppPath");
-                }
             }
         }
 

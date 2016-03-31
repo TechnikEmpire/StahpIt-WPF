@@ -32,6 +32,8 @@
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
+using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using Te.StahpIt.Controls;
 using Te.StahpIt.ViewModels;
@@ -101,7 +103,7 @@ namespace Te.StahpIt.Views
             btnShowAddCategory.Click += OnShowAddCategoryClicked;
         }
 
-        private void OnFilteringCategoryCreated(object sender, FilteringCategoryCreatedArgs args)
+        private async void OnFilteringCategoryCreated(object sender, FilteringCategoryCreatedArgs args)
         {
             // First thing is to hide the flyout now that it's no longer required.
             var mainWindow = Window.GetWindow(this) as MetroWindow;
@@ -115,7 +117,43 @@ namespace Te.StahpIt.Views
                 }
             }
 
-            Application.Current.Dispatcher.BeginInvoke(
+            RequestViewChange(View.ProgressWait, "Loading list, please wait.");
+
+            bool error = false;
+
+            try
+            {
+                await Task.Run(() => args.Category.UpdateAndLoad());
+            }
+            catch(WebException we)
+            {
+                error = true;
+                ShowUserMessage("Error", "Error downloading list file.");
+            }
+            catch (NotSupportedException ne)
+            {
+                error = true;
+                ShowUserMessage("Error", "Error downloading list file.");
+            }
+            catch (ArgumentNullException ane)
+            {
+                error = true;
+                ShowUserMessage("Error", "Error checking list expiry. Is the source a valid filtering list?");
+            }
+            catch (FormatException fe)
+            {
+                error = true;
+                ShowUserMessage("Error", "Error checking list expiry. Is the source a valid filtering list?");
+            }
+
+            RequestViewChange(View.Settings);
+
+            if(error)
+            {
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)delegate ()
                 {
@@ -126,6 +164,7 @@ namespace Te.StahpIt.Views
                     catch(ArgumentException ae)
                     {
                         ShowUserMessage("Error", "Error while adding new filtering category to list.");
+                        m_logger.Error(string.Format("Error while adding new filtering category to list: {0}", ae.Message));
                     }                    
                 }
             );
