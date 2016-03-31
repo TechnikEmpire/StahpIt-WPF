@@ -323,6 +323,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)lib\HttpFilteringEngine\$(ConfigurationName)\*.dll" "$(TargetDir)"
+xcopy /Y "$(ProjectDir)lib\HttpFilteringEngine\$(ConfigurationName)\*.exe" "$(TargetDir)"
 xcopy /Y "$(ProjectDir)lib\HttpFilteringEngine\$(ConfigurationName)\*.sys" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

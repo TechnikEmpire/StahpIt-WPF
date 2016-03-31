@@ -256,8 +256,7 @@ namespace Te.StahpIt
         /// Calls all other init methods, which are split up into ordered, logical groupings.
         /// </summary>
         private void DoInit()
-        {
-            //InitWinsparkle();
+        {            
             InitEngine();
 
             try
@@ -271,7 +270,10 @@ namespace Te.StahpIt
             }
             
             InitTrayIcon();
-            InitViews();            
+            InitViews();
+
+            // Last, we'll initialize WinSparkle and let it do an update check.
+            //InitWinsparkle();       
         }
 
         private void OnApplicationShutdown(object sender, ExitEventArgs e)
@@ -495,6 +497,9 @@ namespace Te.StahpIt
                 m_filteringEngine.OnInfo += OnInfo;
                 m_filteringEngine.OnWarning += OnWarning;
                 m_filteringEngine.OnError += OnError;
+
+                // Attempt to establish trust with Firefox, if we can.
+                EstablishTrustWithFirefox();
             }
             catch (System.Exception e)
             {
@@ -840,6 +845,81 @@ namespace Te.StahpIt
                             m_viewModelDashboard.FilteredApplications.Add(new FilteredAppViewModel(entry.Value));
                         }
                     );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Detects if FireFox is installed and attempts to install the current CA as a trusted CA
+        /// into all discovered FireFox profiles.
+        /// </summary>
+        private void EstablishTrustWithFirefox()
+        {
+            string caFilePath = AppDomain.CurrentDomain.BaseDirectory + "stahpitca.pem";
+            string defaultFirefoxProfilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            defaultFirefoxProfilesPath += "\\Mozilla\\Firefox\\Profiles";
+
+            var ourCaBytes = m_filteringEngine.GetRootCaPEM();
+
+            File.WriteAllBytes(caFilePath, ourCaBytes);
+
+            if (Directory.Exists(defaultFirefoxProfilesPath))
+            {
+                string[] firefoxProfileDirs = Directory.GetDirectories(defaultFirefoxProfilesPath);
+
+                foreach (string profileDir in firefoxProfileDirs)
+                {                
+
+                    // First, delete any old, dead versions of our CA
+                    Process p = new Process();
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.RedirectStandardOutput = true;
+                    p.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "certutil.exe";
+                    p.StartInfo.CreateNoWindow = true;
+                    p.StartInfo.Arguments += string.Format("-D -n \"Stahp It CA\" -d \"{0}\"", profileDir);
+                    p.StartInfo.RedirectStandardError = true;
+                    p.Start();
+                    
+                    string output = p.StandardOutput.ReadToEnd();
+                    string errorOutput = p.StandardError.ReadToEnd();
+
+                    m_logger.Info("FF Cleanup Out: {0}", output);
+
+                    if(!string.IsNullOrEmpty(errorOutput) && !string.IsNullOrWhiteSpace(errorOutput))
+                    {
+                        m_logger.Error("FF Cleanup Error: {0}", errorOutput);
+                    }                    
+
+                    p.WaitForExit();
+
+                    output = string.Empty;
+                    errorOutput = string.Empty;
+
+                    // Install the new version.
+                    p = new Process();
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.RedirectStandardOutput = true;
+                    p.StartInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    p.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "certutil.exe";
+                    p.StartInfo.CreateNoWindow = true;
+                    p.StartInfo.Arguments += string.Format("-A -n \"Stahp It CA\" -t \"TCu,Cuw,Tuw\" -i \"{0}\" -d \"{1}\"", caFilePath, profileDir);
+                    p.StartInfo.RedirectStandardError = true;
+                    p.Start();
+                    
+                    output = p.StandardOutput.ReadToEnd();
+
+                    errorOutput = p.StandardError.ReadToEnd();
+
+                    m_logger.Info("FF Setup Out: {0}", output);
+
+                    if (!string.IsNullOrEmpty(errorOutput) && !string.IsNullOrWhiteSpace(errorOutput))
+                    {
+                        m_logger.Error("FF Cleanup Error: {0}", errorOutput);
+                    }
+                    
+                    p.WaitForExit();
                 }
             }
         }
