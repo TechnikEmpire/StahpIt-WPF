@@ -8,7 +8,7 @@
                       Title="Stahp It"
                       Width="960"
                       Height="540"
-                      GlowBrush="{StaticResource {x:Static SystemColors.ActiveBorderBrushKey}}"
+                      BorderBrush="{StaticResource AccentColorBrush}"
                       ResizeMode="CanMinimize"
                       RightWindowCommandsOverlayBehavior="Flyouts"
                       WindowStartupLocation="CenterScreen"

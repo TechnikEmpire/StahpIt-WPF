@@ -1,0 +1,20 @@
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>Stahp It Update</title>
+    <link>
+      https://raw.githubusercontent.com/TechnikEmpire/StahpIt-WPF/master/Update/winx64/update.xml
+    </link>
+    <description>New version available.</description>
+    <language>en</language>
+    <item>
+      <title>Version 1.0 RC1</title>
+      <description>
+        <![CDATA[
+			<ul> <li>Nothing to see here.</li> </ul>
+			]]>
+      </description>
+      <pubDate>Fri, 1 Apr 2016 15:20:11 +0000</pubDate>
+      <enclosure url="https://github.com/TechnikEmpire/StahpIt-WPF/releases/StahpIt-1.0RC1x64.msi" length="0" sparkle:os="windows" sparkle:installerArguments="/passive" sparkle:version="0.0.1" type="application/octet-stream"/>
+    </item>
+  </channel>
+</rss>

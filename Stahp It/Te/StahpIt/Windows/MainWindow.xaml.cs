@@ -43,10 +43,22 @@ namespace Te.StahpIt.Windows
         {
             InitializeComponent();
 
+            Closing += OnWindowClosing;
+
             btnDashboard.Click += ((s, a) => RequestViewChange(View.Dashboard));
             btnSettings.Click += ((s, a) => RequestViewChange(View.Settings));
             btnStatistics.Click += ((s, a) => RequestViewChange(View.Statistics));
             btnEnvImpact.Click += ((s, a) => RequestViewChange(View.EnvironmentalImpact));
+        }
+
+        private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Closing window does not exit the application. Rather, a explicit shutdown does this.
+            // So, whenever the user closes the window, we need to request that the application be
+            // hidden to the tray.
+            e.Cancel = true;
+
+            RequestViewChange(View.Tray, true);
         }
 
         /// <summary>

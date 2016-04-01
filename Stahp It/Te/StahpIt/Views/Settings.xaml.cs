@@ -153,7 +153,7 @@ namespace Te.StahpIt.Views
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(
+            await Application.Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)delegate ()
                 {
@@ -209,7 +209,7 @@ namespace Te.StahpIt.Views
                     if (castItem != null)
                     {
                         castItem.Enabled = false;
-                        Application.Current.Dispatcher.Invoke(
+                        await Application.Current.Dispatcher.BeginInvoke(
                             System.Windows.Threading.DispatcherPriority.Normal,
                             (Action)delegate ()
                             {

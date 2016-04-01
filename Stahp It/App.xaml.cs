@@ -55,7 +55,7 @@ namespace Te.StahpIt
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class StahpIt : Application
     {
         private readonly Logger m_logger = LogManager.GetLogger("StahpIt");
 
@@ -149,8 +149,15 @@ namespace Te.StahpIt
 
         #endregion APP_UPDATE_MEMBER_VARS
 
+        /// <summary>
+        /// This BackgroundWorker object handles initializing the application off the UI thread.
+        /// Allows the splash screen to function.
+        /// </summary>
         private BackgroundWorker m_backgroundInitWorker;
 
+        /// <summary>
+        /// Loading screen shown during application startup.
+        /// </summary>
         private Splash m_splashScreen;
 
         /// <summary>
@@ -163,7 +170,7 @@ namespace Te.StahpIt
         {
             base.OnStartup(e);
 
-            m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();           
+            m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();
 
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
@@ -179,7 +186,7 @@ namespace Te.StahpIt
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            if(m_logger != null)
+            if (m_logger != null)
             {
                 var err = e.ExceptionObject as Exception;
                 m_logger.Error(err.Message);
@@ -197,13 +204,13 @@ namespace Te.StahpIt
                 m_logger.Error("During startup, encountered error: {0}.", err.Message);
                 m_logger.Error(err.StackTrace);
                 m_logger.Error("Critical error. Exiting.");
-                Current.Dispatcher.Invoke(
+                Current.Dispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
                     (Action)delegate ()
                     {
                         Current.Shutdown();
                     }
-                );                
+                );
                 return;
             }
 
@@ -221,13 +228,15 @@ namespace Te.StahpIt
 
             if (startMinimized)
             {
+                // Start the filter.
+                m_viewModelDashboard.FilteringEnabled = true;
                 MinimizeToTray(false);
             }
         }
 
         private void OnBackgroundInitComplete(object sender, RunWorkerCompletedEventArgs e)
         {
-            if(e.Cancelled || e.Error != null)
+            if (e.Cancelled || e.Error != null)
             {
                 m_logger.Error("Error during initialization.");
                 if (e.Error != null && m_logger != null)
@@ -236,27 +245,36 @@ namespace Te.StahpIt
                     m_logger.Error(e.Error.StackTrace);
                 }
 
-                //Current.Shutdown(-1);
-                return;          
+                Current.Shutdown(-1);
+                return;
             }
-            
-            Current.Dispatcher.Invoke(
+
+            Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)delegate ()
                 {
                     Exit += OnApplicationShutdown;
-                    m_splashScreen.Hide();
+
+                    // Must be done or our single instance enforcement is going to bug out.
+                    // https://github.com/TechnikEmpire/StahpIt-WPF/issues/2
+                    m_splashScreen.Close();
+                    m_splashScreen = null;
+                    //
+
                     m_primaryWindow.Show();
                     OnViewChangeRequest(this, new ViewChangeRequestArgs(View.Dashboard));
                 }
-            );                        
+            );
+
+            // Check for updates, always.
+            WinSparkle.CheckUpdateWithoutUI();
         }
 
         /// <summary>
         /// Calls all other init methods, which are split up into ordered, logical groupings.
         /// </summary>
         private void DoInit()
-        {            
+        {
             InitEngine();
 
             try
@@ -264,16 +282,16 @@ namespace Te.StahpIt
                 // Attempt to load program state, if exists.
                 LoadProgramState();
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 m_logger.Error("Error while loading program state: {0}.", err.Message);
             }
-            
+
             InitTrayIcon();
             InitViews();
 
             // Last, we'll initialize WinSparkle and let it do an update check.
-            //InitWinsparkle();       
+            InitWinsparkle();
         }
 
         private void OnApplicationShutdown(object sender, ExitEventArgs e)
@@ -287,10 +305,12 @@ namespace Te.StahpIt
             {
                 SaveProgramState();
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 m_logger.Error("Error while saving program state: {0}.", err.Message);
-            }            
+            }
+
+            WinSparkle.Cleanup();
         }
 
         /// <summary>
@@ -311,40 +331,40 @@ namespace Te.StahpIt
             if (m_filteredApplicationsTable == null)
             {
                 m_filteredApplicationsTable = new ConcurrentDictionary<string, FilteredAppModel>();
-            }                        
+            }
 
-            if(m_modelDashboard == null)
+            if (m_modelDashboard == null)
             {
                 m_modelDashboard = new DashboardModel(m_filteringEngine);
             }
-            
-            if(m_viewModelDashboard == null)
+
+            if (m_viewModelDashboard == null)
             {
                 m_viewModelDashboard = new DashboardViewModel(m_modelDashboard);
-            }   
+            }
 
-            if(m_modelStatistics == null)
+            if (m_modelStatistics == null)
             {
                 m_modelStatistics = new StatisticsModel();
             }
 
-            if(m_viewModelStatistics == null)
+            if (m_viewModelStatistics == null)
             {
                 m_viewModelStatistics = new StatisticsViewModel(m_modelStatistics);
             }
 
-            if(m_modelSettings == null)
+            if (m_modelSettings == null)
             {
                 m_modelSettings = new SettingsModel();
             }
 
-            if(m_viewModelSettings == null)
+            if (m_viewModelSettings == null)
             {
                 m_viewModelSettings = new SettingsViewModel(m_modelSettings);
             }
 
             // Necessary because we use a background worker. This thread != UI thread.
-            Current.Dispatcher.Invoke(
+            Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)delegate ()
                 {
@@ -361,9 +381,10 @@ namespace Te.StahpIt
                     m_viewDashboard.ViewChangeRequest += OnViewChangeRequest;
                     m_viewStatistics.ViewChangeRequest += OnViewChangeRequest;
                     m_viewSettings.ViewChangeRequest += OnViewChangeRequest;
+
+                    this.MainWindow = m_primaryWindow;
                 }
             );
-                      
         }
 
         /// <summary>
@@ -420,11 +441,27 @@ namespace Te.StahpIt
                         viewToLoad = m_viewSettings;
                     }
                     break;
+
+                case View.Tray:
+                    {
+                        bool showTooltip = false;
+
+                        if (e.Data != null)
+                        {
+                            if (e.Data is bool)
+                            {
+                                showTooltip = (bool)e.Data;
+                            }
+                        }
+
+                        MinimizeToTray(showTooltip);
+                    }
+                    break;
             }
 
             if (viewToLoad != null)
             {
-                Current.Dispatcher.Invoke(
+                Current.Dispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
                     (Action)delegate ()
                     {
@@ -435,7 +472,7 @@ namespace Te.StahpIt
                             m_primaryWindow.HideAllFlyouts();
 
                             // Progress view requires main menu to be disabled
-                            if(mainMenuEnabled)
+                            if (mainMenuEnabled)
                             {
                                 m_primaryWindow.EnableMainMenu();
                             }
@@ -447,12 +484,11 @@ namespace Te.StahpIt
                             m_primaryWindow.CurrentView.Content = viewToLoad;
                             m_primaryWindow.Title = "Stahp It" + windowTitle;
                         }
-                        catch(Exception err)
-                        {                            
+                        catch (Exception err)
+                        {
                             Debug.WriteLine(err.Message);
                             Debug.WriteLine(err.InnerException.Message);
                         }
-                        
                     }
                 );
             }
@@ -467,15 +503,14 @@ namespace Te.StahpIt
         {
             m_winsparkleShutdownCheckCb = new WinSparkle.WinSparkleCanShutdownCheckCallback(WinSparkleCheckIfShutdownOkay);
             m_winsparkleShutdownRequestCb = new WinSparkle.WinSparkleRequestShutdownCallback(WinSparkleRequestsShutdown);
-
-            // Hardcoded app update URL strings, because that's how we roll.
+            
             if (Environment.Is64BitProcess)
             {
-                AppcastUrl = "https://raw.githubusercontent.com/TechnikEmpire/StahpIt-WPF/master/update/winx64/update.xml";
+                AppcastUrl = System.Configuration.ConfigurationManager.AppSettings["Updatex64AppcastURL"];
             }
             else
             {
-                AppcastUrl = "https://raw.githubusercontent.com/TechnikEmpire/StahpIt-WPF/master/update/winx86/update.xml";
+                AppcastUrl = System.Configuration.ConfigurationManager.AppSettings["Updatex86AppcastURL"];
             }
 
             WinSparkle.SetCanShutdownCallback(m_winsparkleShutdownCheckCb);
@@ -505,6 +540,30 @@ namespace Te.StahpIt
             {
                 m_logger.Error(e.Message);
             }
+        }
+
+        /// <summary>
+        /// Brings the main application window into focus for the user and removes it from the tray
+        /// if the application icon is in the tray.
+        /// </summary>
+        public void BringAppToFocus()
+        {
+            Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    if (m_primaryWindow != null)
+                    {
+                        m_primaryWindow.Show();
+                        m_primaryWindow.WindowState = WindowState.Normal;
+                    }
+
+                    if (m_trayIcon != null)
+                    {
+                        m_trayIcon.Visible = false;
+                    }
+                }
+            );
         }
 
         /// <summary>
@@ -622,18 +681,7 @@ namespace Te.StahpIt
             m_trayIcon.DoubleClick +=
                 delegate (object sender, EventArgs args)
                 {
-                    Current.Dispatcher.BeginInvoke(
-                        System.Windows.Threading.DispatcherPriority.Normal,
-                        (Action)delegate ()
-                        {
-                            if (m_primaryWindow != null)
-                            {
-                                m_primaryWindow.Show();
-                                m_primaryWindow.WindowState = WindowState.Normal;
-                                m_trayIcon.Visible = false;
-                            }
-                        }
-                    );
+                    BringAppToFocus();
                 };
         }
 
@@ -655,7 +703,7 @@ namespace Te.StahpIt
                     if (m_primaryWindow != null && m_trayIcon != null)
                     {
                         m_trayIcon.Visible = true;
-                        m_primaryWindow.Visibility = System.Windows.Visibility.Hidden;
+                        m_primaryWindow.Visibility = Visibility.Hidden;
 
                         if (showTip)
                         {
@@ -666,16 +714,43 @@ namespace Te.StahpIt
             );
         }
 
+        /// <summary>
+        /// Called by WinSparkle when it wants to check if it is alright to shut down this
+        /// application in order to install an update.
+        /// </summary>
+        /// <returns>
+        /// Return zero if a shutdown is not okay at this time, return one if it is okay to shut
+        /// down the application immediately after this function returns.
+        /// </returns>
         private int WinSparkleCheckIfShutdownOkay()
         {
-            return 0;
+            // Winsparkle can always shut down. There isn't a reason why, once the user has 
+            // requested the update, the application can't be shut down.
+            return 1;
         }
 
+        /// <summary>
+        /// Called by WinSparkle when it has confirmed that a shutdown is okay and WinSparkle is
+        /// ready to shut this application down so it can install a downloaded update.
+        /// </summary>
         private void WinSparkleRequestsShutdown()
         {
-
+            Shutdown();
         }
 
+        /// <summary>
+        /// Callback for the Engine to determine if the given binary should be filtered or not. The
+        /// reason why this callback is named FirewallCheck is because the transparent proxy that the
+        /// Engine employs could theoretically allow an application access to the internet even when
+        /// the installed firewall has not necessarily given permission for this particular
+        /// application to have internet access. This also why users are told this in plain text in
+        /// the UI component for enabling/disabling filtering on applications.
+        /// </summary>
+        /// <param name="binaryFullPath">
+        /// </param>
+        /// <returns>
+        /// True if the supplied binary should have its traffic filtered, false otherwise.
+        /// </returns>
         private bool FirewallCheck(string binaryFullPath)
         {
             // Note that returning "false" doesn't mean the app doesn't get to access the internet, it
@@ -699,7 +774,7 @@ namespace Te.StahpIt
 
                 if (m_filteredApplicationsTable.TryAdd(binaryFullPath, famdl))
                 {
-                    Current.Dispatcher.Invoke(
+                    Current.Dispatcher.BeginInvoke(
                         System.Windows.Threading.DispatcherPriority.Normal,
                         (Action)delegate ()
                         {
@@ -717,36 +792,37 @@ namespace Te.StahpIt
                 m_logger.Error("Got erreor while constructing new FilteredAppModel: {0}.", ae.Message);
             }
 
-            //m_logger.Info(string.Format("Denying binary {0} internet access.", binaryFullPath));
             return false;
         }
 
+        /// <summary>
+        /// Serializes the models simply using JSON.
+        /// </summary>
         private void SaveProgramState()
         {
             var stateOutputDir = AppDomain.CurrentDomain.BaseDirectory + @"User\";
 
-            if(!Directory.Exists(stateOutputDir))
+            if (!Directory.Exists(stateOutputDir))
             {
                 Directory.CreateDirectory(stateOutputDir);
             }
 
-            if(m_modelDashboard != null)
+            if (m_modelDashboard != null)
             {
                 var dashboardStats = JsonConvert.SerializeObject(m_modelDashboard);
 
                 File.WriteAllText(stateOutputDir + "Dashboard.json", dashboardStats);
             }
-            
-            if(m_filteredApplicationsTable != null)
+
+            if (m_filteredApplicationsTable != null)
             {
                 var filteredApplicationsSerialized = JsonConvert.SerializeObject(m_filteredApplicationsTable);
 
                 File.WriteAllText(stateOutputDir + "FilteredApps.json", filteredApplicationsSerialized);
             }
 
-            if(m_filteringCategoriesObservable != null)
+            if (m_filteringCategoriesObservable != null)
             {
-
                 // XXX TODO - This is a bit of a filthy hack. See
                 // https://github.com/TechnikEmpire/StahpIt-WPF/issues/1
                 //
@@ -756,7 +832,7 @@ namespace Te.StahpIt
 
                 var filteringCatList = new List<FilteringCategory>();
 
-                foreach(var entry in asList)
+                foreach (var entry in asList)
                 {
                     filteringCatList.Add(entry.Category);
                 }
@@ -767,6 +843,9 @@ namespace Te.StahpIt
             }
         }
 
+        /// <summary>
+        /// Loads the models, if present, from their serialized JSON files.
+        /// </summary>
         private void LoadProgramState()
         {
             var stateOutputDir = AppDomain.CurrentDomain.BaseDirectory + @"User\";
@@ -778,7 +857,7 @@ namespace Te.StahpIt
 
             // This thread != UI thread.
 
-            Current.Dispatcher.Invoke(
+            Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
                 (Action)delegate ()
                 {
@@ -787,24 +866,23 @@ namespace Te.StahpIt
                         m_filteringCategoriesObservable = new ObservableCollection<CategorizedFilteredRequestsViewModel>();
                     }
                 }
-            );            
+            );
 
             // Restore filtering categories.
             if (File.Exists(stateOutputDir + "FilterCategories.json"))
-            {               
+            {
                 var filterCatsSerialized = File.ReadAllText(stateOutputDir + "FilterCategories.json");
 
                 var filteringCatsList = JsonConvert.DeserializeObject<List<FilteringCategory>>(filterCatsSerialized, settings);
 
-                foreach(var filteringList in filteringCatsList)
+                foreach (var filteringList in filteringCatsList)
                 {
-
                     // Ensure lists are up to date.
                     try
                     {
                         filteringList.UpdateAndLoad();
 
-                        Current.Dispatcher.Invoke(
+                        Current.Dispatcher.BeginInvoke(
                             System.Windows.Threading.DispatcherPriority.Normal,
                             (Action)delegate ()
                             {
@@ -820,7 +898,7 @@ namespace Te.StahpIt
             }
 
             // Restore dashboard stats.
-            if(File.Exists(stateOutputDir + "Dashboard.json"))
+            if (File.Exists(stateOutputDir + "Dashboard.json"))
             {
                 var dashboardSerialized = File.ReadAllText(stateOutputDir + "Dashboard.json");
 
@@ -838,7 +916,7 @@ namespace Te.StahpIt
                 foreach (var entry in m_filteredApplicationsTable)
                 {
                     m_logger.Info(entry.Key);
-                    Current.Dispatcher.Invoke(
+                    Current.Dispatcher.BeginInvoke(
                         System.Windows.Threading.DispatcherPriority.Normal,
                         (Action)delegate ()
                         {
@@ -869,8 +947,7 @@ namespace Te.StahpIt
                 string[] firefoxProfileDirs = Directory.GetDirectories(defaultFirefoxProfilesPath);
 
                 foreach (string profileDir in firefoxProfileDirs)
-                {                
-
+                {
                     // First, delete any old, dead versions of our CA
                     Process p = new Process();
                     p.StartInfo.UseShellExecute = false;
@@ -881,16 +958,16 @@ namespace Te.StahpIt
                     p.StartInfo.Arguments += string.Format("-D -n \"Stahp It CA\" -d \"{0}\"", profileDir);
                     p.StartInfo.RedirectStandardError = true;
                     p.Start();
-                    
+
                     string output = p.StandardOutput.ReadToEnd();
                     string errorOutput = p.StandardError.ReadToEnd();
 
                     m_logger.Info("FF Cleanup Out: {0}", output);
 
-                    if(!string.IsNullOrEmpty(errorOutput) && !string.IsNullOrWhiteSpace(errorOutput))
+                    if (!string.IsNullOrEmpty(errorOutput) && !string.IsNullOrWhiteSpace(errorOutput))
                     {
                         m_logger.Error("FF Cleanup Error: {0}", errorOutput);
-                    }                    
+                    }
 
                     p.WaitForExit();
 
@@ -907,7 +984,7 @@ namespace Te.StahpIt
                     p.StartInfo.Arguments += string.Format("-A -n \"Stahp It CA\" -t \"TCu,Cuw,Tuw\" -i \"{0}\" -d \"{1}\"", caFilePath, profileDir);
                     p.StartInfo.RedirectStandardError = true;
                     p.Start();
-                    
+
                     output = p.StandardOutput.ReadToEnd();
 
                     errorOutput = p.StandardError.ReadToEnd();
@@ -918,7 +995,7 @@ namespace Te.StahpIt
                     {
                         m_logger.Error("FF Cleanup Error: {0}", errorOutput);
                     }
-                    
+
                     p.WaitForExit();
                 }
             }

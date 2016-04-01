@@ -113,11 +113,13 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>Te.StahpIt.StahpItMain</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>stahpit.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ByteSizeLib, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -131,6 +133,7 @@
       <HintPath>packages\MahApps.Metro.1.2.4.0\lib\net45\MahApps.Metro.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -178,10 +181,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
+    <Compile Include="Te\StahpItMain.cs" />
     <Compile Include="Te\StahpIt\Controls\AddCategoryControl.xaml.cs">
       <DependentUpon>AddCategoryControl.xaml</DependentUpon>
     </Compile>
@@ -275,6 +279,8 @@
     <Content Include="Resources\Media\splash.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Update\winx86\update.xml" />
+    <Resource Include="Update\winx64\update.xml" />
     <Resource Include="Resources\Entypo-license.txt" />
     <Resource Include="Resources\WindowsIcons-license.txt" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -323,6 +329,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(ProjectDir)lib\HttpFilteringEngine\$(ConfigurationName)\*.dll" "$(TargetDir)"
+xcopy /Y "$(ProjectDir)lib\WinSparkle\$(ConfigurationName)\*.dll" "$(TargetDir)"
 xcopy /Y "$(ProjectDir)lib\HttpFilteringEngine\$(ConfigurationName)\*.exe" "$(TargetDir)"
 xcopy /Y "$(ProjectDir)lib\HttpFilteringEngine\$(ConfigurationName)\*.sys" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>

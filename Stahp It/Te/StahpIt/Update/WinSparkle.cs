@@ -66,7 +66,7 @@ namespace Te.StahpIt.Update
         [DllImport("WinSparkle.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "win_sparkle_set_appcast_url", ExactSpelling = true)]
         public static extern void SetAppcastUrl(string url);
 
-        [DllImport("WinSparkle.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "win_sparkle_set_app_details", ExactSpelling = true)]
+        [DllImport("WinSparkle.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, EntryPoint = "win_sparkle_set_app_details", ExactSpelling = true)]
         public static extern void SetAppDetails(string companyName, string appName, string appVersion);
 
         [DllImport("WinSparkle.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, EntryPoint = "win_sparkle_set_registry_path", ExactSpelling = true)]

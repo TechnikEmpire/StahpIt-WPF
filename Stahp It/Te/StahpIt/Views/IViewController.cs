@@ -38,6 +38,7 @@ namespace Te.StahpIt.Views
     /// </summary>
     public enum View
     {
+        Tray,
         Dashboard,
         Statistics,
         ProgressWait,
