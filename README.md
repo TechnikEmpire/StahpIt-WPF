@@ -10,6 +10,21 @@ Put simply, Stahp It gives users complete control over all HTTP traffic. By its 
 
 Since any process of any kind that does HTTP/S communication is supported, so you can filter web content that otherwise escapes other blockers (looking at you Windows 8/8.1/10 and the ads you ~~inject~~ used to inject into my shell).  
 
+##How It Works  
+Stahp It, via the HttpFilteringEngine library, uses WinDivert to intercept outbound HTTP/S packets and redirect them back inward to the internal proxy. This only happens when the user explicitly enables this functionality and it is controlled on a per-process basis.
+
+Once the traffic is sent back inbound to the proxy, the proxy "pretends" to be the server that the application was attempting to connect to. At this stage, if the connection is a HTTPS connection (secured), the proxy authenticates itself using a one time CA certificate and associated private key.  
+
+This decrypts the HTTPS connection locally, but only as far as Stahp It is concerned. Since we love encryption are not evil, the connection to the external machine (the real server) is in fact secured, and if the process of establishing a secure connection encounters any issues (such as a bad or invalid certificate), the connection is immediately terminated, handing the issue down to the user. 
+
+If this process succeeds, the proxy simply hands data back and forth between the real server and the local process (your browser), only scanning the headers of requests and responses and filtering based on this data. In the event that a HTML response is detected, this content is parsed and all CSS selectors loaded are used to remove content from that payload, before being sent off to the local process (your browser).  
+
+##I don't like words like "decrypt."  
+Have you ever visited a HTTPS website and saw intelligable content in your browser? That's because your browser decrypted it.
+
+##How Can I Trust You?
+Surely, you shouldn't. I'm a random person in the world. All of Stahp It can be built from source and every bit of source code is 100% available for review. This project is just the GUI, the core functionality exists in [GQ](https://github.com/TechnikEmpire/GQ) and [HttpFilteringEngine](https://github.com/TechnikEmpire/HttpFilteringEngine). 
+
 ##Privacy  
 Stahp It does not communicate with any external machine, except in its function as a transparent proxy. Personal settings are not stored anywhere but on your device, same goes for statistics and any other application related data. No third party devices are used for any sort of processing.
 
