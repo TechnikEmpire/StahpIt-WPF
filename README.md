@@ -21,6 +21,8 @@ If this process succeeds, the proxy simply hands data back and forth between the
 
 The CA certificate and private key are destroyed and recreated every time the program runs and exits, and the keys are generated using named curves.
 
+Stahp It does not trust your OS certificate store, just like FireFox does not and for the same reasons. People using self signed certs will have issues trying to use Stahp It.
+
 ##I don't like words like "decrypt."  
 Have you ever visited a HTTPS website and saw intelligible content in your browser? That's because your browser decrypted it.
 
