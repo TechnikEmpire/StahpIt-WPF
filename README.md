@@ -16,7 +16,7 @@ Stahp It does not communicate with any external machine, except in its function 
 ##Legalities  
 Stahp It includes binary releases of OpenSSL. Below is a quote taken from the [downloads page](https://www.openssl.org/source/) for OpenSSL:
 
-> Please remember that export/import and/or use of strong cryptography software, providing cryptography hooks, or even just > communicating technical details about cryptography software is illegal in some parts of the world. So when you import this > package to your country, re-distribute it from there or even just email technical suggestions or even source patches to the > authors or other people you are strongly advised to pay close attention to any laws or regulations which apply to you. The > authors of openssl are not liable for any violations you make here. So be careful, it is your responsibility. 
+> Please remember that export/import and/or use of strong cryptography software, providing cryptography hooks, or even just communicating technical details about cryptography software is illegal in some parts of the world. So when you import this package to your country, re-distribute it from there or even just email technical suggestions or even source patches to the authors or other people you are strongly advised to pay close attention to any laws or regulations which apply to you. The authors of openssl are not liable for any violations you make here. So be careful, it is your responsibility. 
 
 I've quoted this warning because, seeing how Stahp It includes OpenSSL, this applies to your download/use of Stahp It.  
 
