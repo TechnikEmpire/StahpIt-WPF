@@ -30,6 +30,8 @@ Surely, you shouldn't. I'm a random person in the world. All of Stahp It can be 
 ##Privacy  
 Stahp It does not communicate with any external machine, except in its function as a transparent proxy. Personal settings are not stored anywhere but on your device, same goes for statistics and any other application related data. No third party devices are used for any sort of processing.
 
+The only "exception" to this is that Stahp It will, on startup, check directly with this repository for updates via [WinSparkle](https://winsparkle.org/). In this case, WinSparkle downloads information about the latest Release via an [appcast](https://github.com/TechnikEmpire/StahpIt-WPF), which is stored in this repository. WinSparkle will then compare this to the installed version and ask the user if they want to upgrade or not. 
+
 ##Legalities  
 Stahp It includes binary releases of OpenSSL. Below is a quote taken from the [downloads page](https://www.openssl.org/source/) for OpenSSL:
 
