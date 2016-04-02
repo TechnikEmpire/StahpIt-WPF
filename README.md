@@ -19,6 +19,8 @@ This decrypts the HTTPS connection locally, but only as far as Stahp It is conce
 
 If this process succeeds, the proxy simply hands data back and forth between the real server and the local process (your browser), only scanning the headers of requests and responses and filtering based on this data. In the event that a HTML response is detected, this content is parsed and all CSS selectors loaded are used to remove content from that payload, before being sent off to the local process (your browser).  
 
+The CA certificate and private key are destroyed and recreated every time the program runs and exits, and the keys are generated using named curves.
+
 ##I don't like words like "decrypt."  
 Have you ever visited a HTTPS website and saw intelligable content in your browser? That's because your browser decrypted it.
 
