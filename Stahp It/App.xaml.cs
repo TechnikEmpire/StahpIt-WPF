@@ -57,7 +57,7 @@ namespace Te.StahpIt
     /// </summary>
     public partial class StahpIt : Application
     {
-        private readonly Logger m_logger = LogManager.GetLogger("StahpIt");
+        private readonly Logger m_logger;
 
         /// <summary>
         /// Holds a table of existing FilteredAppModel indexed by binary absolute path. We need to
@@ -159,6 +159,15 @@ namespace Te.StahpIt
         /// Loading screen shown during application startup.
         /// </summary>
         private Splash m_splashScreen;
+
+        public StahpIt()
+        {
+            // Apparently NLOG has some issues auto creating directories even when its told to.
+            string logDir = AppDomain.CurrentDomain.BaseDirectory + "logs";
+            Directory.CreateDirectory(logDir);
+
+            m_logger = LogManager.GetLogger("StahpIt");
+        }
 
         /// <summary>
         /// Entry point for the application.

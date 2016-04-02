@@ -1,5 +1,6 @@
 ## Ignore bin directories, deps directories, etc
 build/
+Installers
 deps/*/*/**
 [Ii]ntermediates/
 
