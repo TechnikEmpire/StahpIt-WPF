@@ -22,7 +22,7 @@ If this process succeeds, the proxy simply hands data back and forth between the
 The CA certificate and private key are destroyed and recreated every time the program runs and exits, and the keys are generated using named curves.
 
 ##I don't like words like "decrypt."  
-Have you ever visited a HTTPS website and saw intelligable content in your browser? That's because your browser decrypted it.
+Have you ever visited a HTTPS website and saw intelligible content in your browser? That's because your browser decrypted it.
 
 ##How Can I Trust You?
 Surely, you shouldn't. I'm a random person in the world. All of Stahp It can be built from source and every bit of source code is 100% available for review. This project is just the GUI, the core functionality exists in [GQ](https://github.com/TechnikEmpire/GQ) and [HttpFilteringEngine](https://github.com/TechnikEmpire/HttpFilteringEngine). 
