@@ -11,7 +11,7 @@ Put simply, Stahp It gives users complete control over all HTTP traffic. By its 
 Since any process of any kind that does HTTP/S communication is supported, so you can filter web content that otherwise escapes other blockers (looking at you Windows 8/8.1/10 and the ads you ~~inject~~ used to inject into my shell).  
 
 ##How It Works  
-Stahp It, via the HttpFilteringEngine library, uses WinDivert to intercept outbound HTTP/S packets and redirect them back inward to the internal proxy. This only happens when the user explicitly enables this functionality and it is controlled on a per-process basis.
+Stahp It, via the [HttpFilteringEngine](https://github.com/TechnikEmpire/HttpFilteringEngine) library, uses [WinDivert](https://reqrypt.org/windivert.html) to intercept outbound HTTP/S packets and redirect them back inward to the internal proxy. This only happens when the user explicitly enables this functionality and it is controlled on a per-process basis.
 
 Once the traffic is sent back inbound to the proxy, the proxy "pretends" to be the server that the application was attempting to connect to. At this stage, if the connection is a HTTPS connection (secured), the proxy authenticates itself using a one time CA certificate and associated private key.  
 
