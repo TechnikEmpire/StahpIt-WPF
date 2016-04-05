@@ -215,6 +215,12 @@ namespace Te.StahpIt
             {
                 m_logger.Error("During startup, encountered error: {0}.", err.Message);
                 m_logger.Error(err.StackTrace);
+
+                if (err.InnerException != null)
+                {
+                    m_logger.Error("Inner Exception: {0}.", err.InnerException.Message);
+                }
+                
                 m_logger.Error("Critical error. Exiting.");
                 Current.Dispatcher.BeginInvoke(
                     System.Windows.Threading.DispatcherPriority.Normal,
