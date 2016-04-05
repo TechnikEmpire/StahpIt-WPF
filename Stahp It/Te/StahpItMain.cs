@@ -61,7 +61,7 @@ namespace Te.StahpIt
 
     public static class StahpItMain
     {
-        public static readonly Logger logger = LogManager.GetLogger("StahpIt");
+        public static readonly Logger Logger = LogManager.GetLogger("StahpIt");
 
         [STAThread]
         public static void Main(string[] args)
@@ -73,7 +73,7 @@ namespace Te.StahpIt
             }
             catch (Exception e)
             {
-                logger.Error(e.Message);
+                Logger.Error(e.Message);
             }
         }
     }

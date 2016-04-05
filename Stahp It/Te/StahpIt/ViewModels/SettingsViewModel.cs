@@ -30,38 +30,48 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Te.StahpIt.Models;
 
 namespace Te.StahpIt.ViewModels
 {
+
+    /// <summary>
+    /// View model for the Settings view.
+    /// </summary>
     public class SettingsViewModel : BaseViewModel
     {
 
+        /// <summary>
+        /// The model.
+        /// </summary>
         private SettingsModel m_model;
 
+        /// <summary>
+        /// Shared instance of all filtering categories in an ObservableCollection. This collection
+        /// is bound to subview in many different views in the overall application.
+        /// </summary>
         public ObservableCollection<CategorizedFilteredRequestsViewModel> FilterCategories
         {
             get
             {
-                if(m_model != null)
+                if (m_model != null)
                 {
                     return m_model.FilterCategories;
                 }
 
                 return null;
-            }            
+            }
         }
 
+        /// <summary>
+        /// Whether or not the application should run at user logon.
+        /// </summary>
         public bool RunAtStartup
         {
             get
             {
-                if(m_model != null)
+                if (m_model != null)
                 {
                     return m_model.RunAtStartup;
                 }
@@ -71,7 +81,7 @@ namespace Te.StahpIt.ViewModels
 
             set
             {
-                if(m_model != null && value != m_model.RunAtStartup)
+                if (m_model != null && value != m_model.RunAtStartup)
                 {
                     m_model.RunAtStartup = value;
 
@@ -81,20 +91,205 @@ namespace Te.StahpIt.ViewModels
         }
 
         /// <summary>
-        /// 
+        /// Whether or not to estimate the size of blocked requests that had a chunked payload as a
+        /// response.
         /// </summary>
-        /// <param name="model"></param>
+        public bool EstimateBlockedChunkedPayloadSize
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.EstimateBlockedChunkedPayloadSize;
+                }
+
+                return false;
+            }
+
+            set
+            {
+                if (m_model != null && value != m_model.EstimateBlockedChunkedPayloadSize)
+                {
+                    m_model.EstimateBlockedChunkedPayloadSize = value;
+
+                    PropertyHasChanged("EstimateBlockedChunkedPayloadSize");
+                }
+            }
+        }
+
+        /// <summary>
+        /// A string representation of the total amount of data that the user wants to estimate a
+        /// blocked request to be.
+        /// </summary>
+        public string EstimateFriendlyString
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.EstimateFriendlyString;
+                }
+
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// The total bytes estimated for requests blocked that generated a chunked response, in
+        /// string format.
+        /// </summary>
+        public string ChunkedPayloadEstimateString
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.ChunkedPayloadEstimateString;
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                if (m_model != null)
+                {
+                    m_model.ChunkedPayloadEstimateString = value;
+
+                    PropertyHasChanged("ChunkedPayloadEstimateString");                    
+
+                    // Also notify that EstimateFriendlyString has changed, because this will give
+                    // the user a nice string representation of just how "big" the size 
+                    // they've entered for blocked requests is.
+                    PropertyHasChanged("EstimateFriendlyString");
+                }
+            }
+        }
+
+        /// <summary>
+        /// The user's estimate of the cost of bandwidth per GB, in string format.
+        /// </summary>
+        public string UserFinancialCostPerGbString
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.UserEstimatedFinancialCostPerGbString;
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                if (m_model != null)
+                {
+                    m_model.UserEstimatedFinancialCostPerGbString = value;
+
+                    PropertyHasChanged("UserFinancialCostPerGbString");
+
+                    // Also trigger update for decimal version.
+                    PropertyHasChanged("UserFinancialCostPerGb");
+                }
+            }
+        }
+
+        /// <summary>
+        /// The user's estimate of the cost of bandwidth per GB, in decimal.
+        /// </summary>
+        public decimal UserFinancialCostPerGb
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.UserEstimatedFinancialCostPerGb;
+                }
+
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// The user's estimate of the energy cost of bandwidth per GB, in string format.
+        /// </summary>
+        public string UserKwhCostPerGbString
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.UserEstimatedKwhCostPerGbString;
+                }
+
+                return string.Empty;
+            }
+
+            set
+            {
+                if (m_model != null)
+                {
+                    m_model.UserEstimatedKwhCostPerGbString = value;
+
+                    PropertyHasChanged("UserKwhCostPerGbString");
+
+                    // Also trigger update for integer version.
+                    PropertyHasChanged("UserKwhCostPerGb");
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// The user's estimate of the energy cost of bandwidth per GB, in integer format.
+        /// </summary>
+        public long UserKwhCostPerGb
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.UserEstimatedKwhCostPerGb;
+                }
+
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// The total bytes estimated for requests blocked that generated a chunked response.
+        /// </summary>
+        public long ChunkedPayloadByteEstimate
+        {
+            get
+            {
+                if (m_model != null)
+                {
+                    return m_model.ChunkedPayloadByteEstimate;
+                }
+
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Constructs a new Settings View Model object.
+        /// </summary>
+        /// <param name="model">
+        /// The settings model.
+        /// </param>
         /// <exception cref="ArgumentException">
+        /// In the event that the supplied SettingsModel is null, will throw ArgumentException.
         /// </exception>
         public SettingsViewModel(SettingsModel model)
         {
             m_model = model;
 
-            if(m_model == null)
+            if (m_model == null)
             {
                 throw new ArgumentException("Expected valid instance of SettingsModel");
-            }            
+            }
         }
-        
     }
 }

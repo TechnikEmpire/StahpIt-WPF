@@ -13,7 +13,7 @@
           Height="511"
           Margin="0,0,0,0">
         <Rectangle Fill="White" Opacity="1" />
-        <Label Name="statusLabel"
+        <Label Name="m_statusLabel"
                Height="50"
                Margin="0,340,0,121"
                HorizontalContentAlignment="Center"

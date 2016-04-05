@@ -63,7 +63,7 @@ namespace Te.StahpIt.ViewModels
         /// The total number of requests blocked globally. That is to say, the total number spanning
         /// all categories.
         /// </summary>
-        public UInt32 TotalRequestsBlocked
+        public long TotalRequestsBlocked
         {
             get
             {
@@ -89,7 +89,7 @@ namespace Te.StahpIt.ViewModels
         /// <summary>
         /// The total number of HTML removes globally, spanning all categories.
         /// </summary>
-        public UInt32 TotalHtmlElementsRemoved
+        public long TotalHtmlElementsRemoved
         {
             get
             {

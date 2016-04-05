@@ -78,7 +78,7 @@ namespace Te.StahpIt
         /// </summary>
         private ObservableCollection<CategorizedFilteredRequestsViewModel> m_filteringCategoriesObservable;
 
-        #region APP_UI_MEMBER_VARS
+        #region WINDOWS_VIEWS_MODELS_DATA
 
         /// <summary>
         /// The primary window. That's pretty much at all it's responsible for, just sitting there
@@ -86,6 +86,11 @@ namespace Te.StahpIt
         /// to at the request of the user.
         /// </summary>
         private MainWindow m_primaryWindow;
+
+        /// <summary>
+        /// Loading screen shown during application startup.
+        /// </summary>
+        private Splash m_splashScreen;
 
         /// <summary>
         /// Wait view to provide feedback to the user while awaiting the completion of asynchronous
@@ -105,6 +110,11 @@ namespace Te.StahpIt
         private SettingsViewModel m_viewModelSettings;
         private Settings m_viewSettings;
 
+        private WasteViewModel m_viewModelWaste;
+        private Waste m_viewWaste;
+
+        #endregion VIEWS_MODELS_DATA
+
         /// <summary>
         /// The Engine that actually does all the work begind the scenes.
         /// </summary>
@@ -117,9 +127,7 @@ namespace Te.StahpIt
         /// This makes sense, given that this is an application the user doesn't really need to
         /// constantly interact with. So, we just automatically send it to the background.
         /// </summary>
-        private System.Windows.Forms.NotifyIcon m_trayIcon;
-
-        #endregion APP_UI_MEMBER_VARS
+        private System.Windows.Forms.NotifyIcon m_trayIcon;        
 
         #region APP_UPDATE_MEMBER_VARS
 
@@ -153,12 +161,7 @@ namespace Te.StahpIt
         /// This BackgroundWorker object handles initializing the application off the UI thread.
         /// Allows the splash screen to function.
         /// </summary>
-        private BackgroundWorker m_backgroundInitWorker;
-
-        /// <summary>
-        /// Loading screen shown during application startup.
-        /// </summary>
-        private Splash m_splashScreen;
+        private BackgroundWorker m_backgroundInitWorker;        
 
         public StahpIt()
         {
@@ -319,6 +322,17 @@ namespace Te.StahpIt
                 m_logger.Error("Error while saving program state: {0}.", err.Message);
             }
 
+            // Dispose all models that implement IDisposable.
+            if(m_modelDashboard != null)
+            {
+                m_modelDashboard.Dispose();
+            }
+
+            if (m_modelSettings != null)
+            {
+                m_modelSettings.Dispose();
+            }
+
             WinSparkle.Cleanup();
         }
 
@@ -372,6 +386,11 @@ namespace Te.StahpIt
                 m_viewModelSettings = new SettingsViewModel(m_modelSettings);
             }
 
+            if(m_viewModelWaste == null)
+            {
+                m_viewModelWaste = new WasteViewModel(m_viewModelSettings, m_viewModelDashboard);
+            }
+
             // Necessary because we use a background worker. This thread != UI thread.
             Current.Dispatcher.BeginInvoke(
                 System.Windows.Threading.DispatcherPriority.Normal,
@@ -385,13 +404,15 @@ namespace Te.StahpIt
                     m_viewStatistics = new Statistics(m_viewModelStatistics);
                     m_viewDashboard = new Dashboard(m_viewModelDashboard);
                     m_viewSettings = new Settings(m_viewModelSettings, new AddCategoryControl(m_filteringEngine));
+                    m_viewWaste = new Waste(m_viewModelWaste);
 
                     m_primaryWindow.ViewChangeRequest += OnViewChangeRequest;
                     m_viewDashboard.ViewChangeRequest += OnViewChangeRequest;
                     m_viewStatistics.ViewChangeRequest += OnViewChangeRequest;
                     m_viewSettings.ViewChangeRequest += OnViewChangeRequest;
+                    m_viewWaste.ViewChangeRequest += OnViewChangeRequest;
 
-                    this.MainWindow = m_primaryWindow;
+                    MainWindow = m_primaryWindow;
                 }
             );
         }
@@ -448,6 +469,13 @@ namespace Te.StahpIt
                     {
                         windowTitle = " - Settings";
                         viewToLoad = m_viewSettings;
+                    }
+                    break;
+
+                case View.Waste:
+                    {
+                        windowTitle = " - Waste Cost";
+                        viewToLoad = m_viewWaste;
                     }
                     break;
 
@@ -631,25 +659,29 @@ namespace Te.StahpIt
         {
             Debug.WriteLine("Total Bytes Blocked: {0}", payloadSizeBlocked);
 
-            if (m_viewModelDashboard != null)
-            {
-                Current.Dispatcher.BeginInvoke(
-                    System.Windows.Threading.DispatcherPriority.Normal,
-                    (Action)delegate ()
+            Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    CategorizedFilteredRequestsViewModel cat = m_filteringCategoriesObservable.Single(item => item.CategoryId == category);
+
+                    // If the blocked size is zero, and the user wants to set this value to "estimate"
+                    // the size of the blocked requests's response, then do it.
+                    if(payloadSizeBlocked == 0 && m_viewModelSettings.EstimateBlockedChunkedPayloadSize)
                     {
-                        CategorizedFilteredRequestsViewModel cat = m_filteringCategoriesObservable.Single(item => item.CategoryId == category);
-
-                        m_viewModelDashboard.TotalRequestsBlocked += 1;
-                        m_viewModelDashboard.TotalBytesBlocked += payloadSizeBlocked;
-
-                        if (cat != null)
-                        {
-                            cat.TotalRequestsBlocked += 1;
-                            cat.TotalBytesBlocked += payloadSizeBlocked;
-                        }
+                        payloadSizeBlocked = (uint)m_viewModelSettings.ChunkedPayloadByteEstimate;
                     }
-                );
-            }
+
+                    m_viewModelDashboard.TotalRequestsBlocked += 1;
+                    m_viewModelDashboard.TotalBytesBlocked += payloadSizeBlocked;
+
+                    if (cat != null)
+                    {
+                        cat.TotalRequestsBlocked += 1;
+                        cat.TotalBytesBlocked += payloadSizeBlocked;
+                    }
+                }
+            );
         }
 
         /// <summary>
@@ -823,6 +855,13 @@ namespace Te.StahpIt
                 File.WriteAllText(stateOutputDir + "Dashboard.json", dashboardStats);
             }
 
+            if(m_modelSettings != null)
+            {
+                var settingsData = JsonConvert.SerializeObject(m_modelSettings);
+
+                File.WriteAllText(stateOutputDir + "Settings.json", settingsData);
+            }
+
             if (m_filteredApplicationsTable != null)
             {
                 var filteredApplicationsSerialized = JsonConvert.SerializeObject(m_filteredApplicationsTable);
@@ -913,6 +952,15 @@ namespace Te.StahpIt
 
                 m_modelDashboard = JsonConvert.DeserializeObject<DashboardModel>(dashboardSerialized, settings);
                 m_viewModelDashboard = new DashboardViewModel(m_modelDashboard);
+            }
+
+            // Restore settings.
+            if (File.Exists(stateOutputDir + "Settings.json"))
+            {
+                var settingsSerialized = File.ReadAllText(stateOutputDir + "Settings.json");
+
+                m_modelSettings = JsonConvert.DeserializeObject<SettingsModel>(settingsSerialized, settings);
+                m_viewModelSettings = new SettingsViewModel(m_modelSettings);
             }
 
             // Restore filtered apps.

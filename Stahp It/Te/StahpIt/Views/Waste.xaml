@@ -1,0 +1,140 @@
+﻿<local:BaseView x:Class="Te.StahpIt.Views.Waste"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:local="clr-namespace:Te.StahpIt.Views"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                d:DesignHeight="511"
+                d:DesignWidth="800"
+                mc:Ignorable="d">
+    <Grid>
+        <TextBlock Width="401"
+                   Height="331"
+                   Margin="23,71,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   TextWrapping="Wrap"><Run Text="It costs a great deal of money and energy to deliver content over the Internet. It directly costs you financially, especially if you're on a metered connection. This portion of Stahp It is a tool to help you calculate, if you so desire, the costs based on your own statistical data." />
+            <LineBreak /><Run />
+            <LineBreak /><Run Text="Since Stahp It collects the declared sizes of blocked transactions without actually downloading the payload, we can run these calculations with an acceptable degree of accuracy." />
+            <LineBreak /><Run />
+            <LineBreak /><Run Text="Stahp It does not make any assumptions about the base figures used for calculations, but rather leaves it open to you, the user, to configure." /><Run Text=" There have been few studies done, and figures such as the overall " /><Run Text="power " /><Run Text="cost per GB of data are highly contended, so they are not hard coded" /><Run Text=". These values can be set in the " />
+            <Hyperlink Click="OnSettingsLinkClicked" Cursor="Hand">Settings area.</Hyperlink>
+            <LineBreak /><Run />
+            <LineBreak /><Run Text="This tool is meant to provoke thought and discussion about the state of the Internet, the cost, and the savings of having something like Stahp It" /><Run Text=", where users are no longer entirely at the mercy of unknown third parties spoon feeding content and running privacy exploiting code on their machines with a simple click of a hyperlink." />
+        </TextBlock>
+
+        <Label Width="292"
+               Margin="485,73,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=TotalRequestsBlocked}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="255"
+               Margin="482,21,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="Requests Blocked"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+        <Label Width="308"
+               Margin="23,21,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="What Is The Cost?"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+        <Label Width="292"
+               Margin="485,173,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=TotalDataBlockedString}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="255"
+               Margin="482,121,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="Totalling"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+        <Label Width="292"
+               Margin="485,274,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=TotalFinancialCost}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+        <Label Width="255"
+               Margin="482,222,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="Financial Cost"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="292"
+               Margin="485,374,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Right"
+               Content="{Binding Path=TotalEnergyCost}"
+               FontSize="21"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+
+        <Label Width="255"
+               Margin="482,322,0,0"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Top"
+               HorizontalContentAlignment="Left"
+               Content="Energy Cost"
+               FontSize="23"
+               FontWeight="Light"
+               Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+               IsHitTestVisible="False"
+               Opacity=".7"
+               Padding="0,0,0,0" />
+    </Grid>
+</local:BaseView>

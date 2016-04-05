@@ -45,10 +45,10 @@ namespace Te.StahpIt.Windows
 
             Closing += OnWindowClosing;
 
-            btnDashboard.Click += ((s, a) => RequestViewChange(View.Dashboard));
-            btnSettings.Click += ((s, a) => RequestViewChange(View.Settings));
-            btnStatistics.Click += ((s, a) => RequestViewChange(View.Statistics));
-            btnEnvImpact.Click += ((s, a) => RequestViewChange(View.EnvironmentalImpact));
+            m_btnDashboard.Click += ((s, a) => RequestViewChange(View.Dashboard));
+            m_btnSettings.Click += ((s, a) => RequestViewChange(View.Settings));
+            m_btnStatistics.Click += ((s, a) => RequestViewChange(View.Statistics));
+            m_btnEnvImpact.Click += ((s, a) => RequestViewChange(View.Waste));
         }
 
         private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -86,18 +86,18 @@ namespace Te.StahpIt.Windows
 
         public void EnableMainMenu()
         {
-            btnDashboard.IsEnabled = true;
-            btnSettings.IsEnabled = true;
-            btnStatistics.IsEnabled = true;
-            btnEnvImpact.IsEnabled = true;
+            m_btnDashboard.IsEnabled = true;
+            m_btnSettings.IsEnabled = true;
+            m_btnStatistics.IsEnabled = true;
+            m_btnEnvImpact.IsEnabled = true;
         }
 
         public void DisableMainMenu()
         {
-            btnDashboard.IsEnabled = false;
-            btnSettings.IsEnabled = false;
-            btnStatistics.IsEnabled = false;
-            btnEnvImpact.IsEnabled = false;
+            m_btnDashboard.IsEnabled = false;
+            m_btnSettings.IsEnabled = false;
+            m_btnStatistics.IsEnabled = false;
+            m_btnEnvImpact.IsEnabled = false;
         }
 
         /// <summary>

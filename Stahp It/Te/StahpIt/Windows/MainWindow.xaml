@@ -69,7 +69,7 @@
                 </Style>
             </UniformGrid.Resources>
 
-            <Controls:Tile x:Name="btnDashboard"
+            <Controls:Tile x:Name="m_btnDashboard"
                            Title="Dashboard"
                            Width="Auto"
                            Height="127.75"
@@ -90,7 +90,7 @@
                 </Rectangle>
             </Controls:Tile>
 
-            <Controls:Tile x:Name="btnSettings"
+            <Controls:Tile x:Name="m_btnSettings"
                            Title="Settings"
                            Width="Auto"
                            Height="127.75"
@@ -108,7 +108,7 @@
                 </Rectangle>
             </Controls:Tile>
 
-            <Controls:Tile x:Name="btnStatistics"
+            <Controls:Tile x:Name="m_btnStatistics"
                            Title="Statistics"
                            Width="Auto"
                            Height="127.75"
@@ -125,8 +125,8 @@
                     </Rectangle.OpacityMask>
                 </Rectangle>
             </Controls:Tile>
-            <Controls:Tile x:Name="btnEnvImpact"
-                           Title="Waste Stats"
+            <Controls:Tile x:Name="m_btnEnvImpact"
+                           Title="Waste Cost"
                            Width="Auto"
                            Height="127.75"
                            Margin="0"

@@ -29,13 +29,12 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
-using Te.StahpIt.ViewModels;
-using System.Windows.Controls;
-using System.Threading.Tasks;
-using MahApps.Metro.Controls.Dialogs;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
+using Te.StahpIt.ViewModels;
 
 namespace Te.StahpIt.Views
 {
@@ -44,7 +43,6 @@ namespace Te.StahpIt.Views
     /// </summary>
     public partial class Dashboard : BaseView
     {
-
         /// <summary>
         /// The view model.
         /// </summary>
@@ -65,19 +63,19 @@ namespace Te.StahpIt.Views
 
             m_viewModel = viewModel;
 
-            if(m_viewModel == null)
+            if (m_viewModel == null)
             {
                 throw new ArgumentException("Expected valid DashboardViewModel instance.");
             }
-            
+
             DataContext = m_viewModel;
 
             //THIS IS IMPORTANT, so that the list does not add an extra blank line.
-            dataGridFilterApps.CanUserAddRows = false;
+            m_dataGridFilterApps.CanUserAddRows = false;
 
-            btnFilterToggle.Click += OnBtnFilterToggleClicked;
+            m_btnFilterToggle.Click += OnBtnFilterToggleClicked;
 
-            exitButton.Click += OnExitClicked;
+            m_exitButton.Click += OnExitClicked;
         }
 
         private async void OnExitClicked(object sender, System.Windows.RoutedEventArgs e)
@@ -87,17 +85,17 @@ namespace Te.StahpIt.Views
             mds.NegativeButtonText = "No";
             MetroWindow parentWindow = this.TryFindParent<MetroWindow>();
 
-            if(parentWindow != null)
+            if (parentWindow != null)
             {
                 var result = await DialogManager.ShowMessageAsync(parentWindow, "Exit Stahp It", "Are you sure you would like to fully exit? You will no longer have filtering.", MessageDialogStyle.AffirmativeAndNegative, mds);
 
                 if (result == MessageDialogResult.Affirmative)
                 {
                     RequestViewChange(View.ProgressWait, "Shutting Down. Please Wait.");
-                                        
+
                     Application.Current.Shutdown();
                 }
-            }            
+            }
         }
 
         private async void OnBtnFilterToggleClicked(object sender, System.Windows.RoutedEventArgs e)

@@ -18,11 +18,11 @@
           Margin="0,0,0,0">
 
         <!--  Border brush for the filter toggle button  -->
-        <Rectangle Margin="{Binding ElementName=btnFilterToggle,
+        <Rectangle Margin="{Binding ElementName=m_btnFilterToggle,
                                     Path=Margin}"
                    Fill="#CC119EDA"
                    RenderTransformOrigin="0.5,0.5"
-                   Visibility="{Binding ElementName=btnFilterToggle,
+                   Visibility="{Binding ElementName=m_btnFilterToggle,
                                         Path=IsMouseOver,
                                         Converter={StaticResource BoolToVis}}">
             <Rectangle.RenderTransform>
@@ -30,28 +30,28 @@
             </Rectangle.RenderTransform>
         </Rectangle>
 
-        <Controls:Tile x:Name="btnFilterToggle"
+        <Controls:Tile x:Name="m_btnFilterToggle"
                        Title="Click To Toggle"
                        Width="Auto"
                        Height="Auto"
-                       Margin="65,67,562,278"
+                       Margin="26,67,601,278"
                        Cursor="Hand"
                        RenderTransformOrigin="0.5,0.5"
                        x:FieldModifier="private">
 
             <Controls:Tile.Background>
-                <SolidColorBrush x:Name="filterButtonBackground"
+                <SolidColorBrush x:Name="m_filterButtonBackground"
                                  x:FieldModifier="private"
                                  Color="{Binding Path=FilteringButtonColor}" />
             </Controls:Tile.Background>
 
             <Controls:Tile.Content>
-                <Rectangle Width="100"
-                           Height="100"
+                <Rectangle Width="80"
+                           Height="80"
                            Margin="0,0,0,0"
                            Fill="White">
                     <Rectangle.OpacityMask>
-                        <VisualBrush x:Name="filterButtonIcon"
+                        <VisualBrush x:Name="m_filterButtonIcon"
                                      Stretch="Fill"
                                      Visual="{StaticResource appbar_close}" />
                     </Rectangle.OpacityMask>
@@ -60,11 +60,11 @@
         </Controls:Tile>
 
         <!--  Border brush for the exit button  -->
-        <Rectangle Margin="{Binding ElementName=exitButton,
+        <Rectangle Margin="{Binding ElementName=m_exitButton,
                                     Path=Margin}"
                    Fill="#CC119EDA"
                    RenderTransformOrigin="0.5,0.5"
-                   Visibility="{Binding ElementName=exitButton,
+                   Visibility="{Binding ElementName=m_exitButton,
                                         Path=IsMouseOver,
                                         Converter={StaticResource BoolToVis}}">
             <Rectangle.RenderTransform>
@@ -72,11 +72,11 @@
             </Rectangle.RenderTransform>
         </Rectangle>
 
-        <Controls:Tile x:Name="exitButton"
+        <Controls:Tile x:Name="m_exitButton"
                        Title="Exit App"
                        Width="Auto"
                        Height="Auto"
-                       Margin="247,67,380,280"
+                       Margin="219,67,408,278"
                        Background="{DynamicResource WindowTitleColorBrush}"
                        Cursor="Hand"
                        x:FieldModifier="private">
@@ -95,7 +95,7 @@
                Canvas.Top="10"
                Width="173"
                Height="28"
-               Margin="65,71,0,0"
+               Margin="25,71,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Center"
@@ -106,12 +106,12 @@
                IsHitTestVisible="False"
                Padding="0,0,0,0" />
 
-        <Label x:Name="labelFilterStatus"
+        <Label x:Name="m_labelFilterStatus"
                Canvas.Left="141"
                Canvas.Top="179"
                Width="55"
                Height="31"
-               Margin="178,200,0,0"
+               Margin="140,200,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Right"
@@ -124,48 +124,48 @@
                TextBlock.TextAlignment="Center"
                x:FieldModifier="private" />
 
-        <Label Width="281"
-               Margin="500,18,0,0"
+        <Label Width="348"
+               Margin="422,18,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
-               HorizontalContentAlignment="Center"
+               HorizontalContentAlignment="Left"
                Content="Filtered Applications"
                FontSize="25"
-               FontWeight="Light"
+               FontWeight="ExtraLight"
                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
                IsHitTestVisible="False"
-               Opacity="1"
+               Opacity=".7"
                Padding="0,0,0,0" />
 
-        <Label Width="281"
-               Margin="108,18,0,0"
+        <Label Width="363"
+               Margin="26,18,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
-               HorizontalContentAlignment="Center"
+               HorizontalContentAlignment="Left"
                Content="App Control"
                FontSize="25"
-               FontWeight="Light"
+               FontWeight="ExtraLight"
                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
                IsHitTestVisible="False"
-               Opacity="1"
+               Opacity=".7"
                Padding="0,0,0,0"
                TextOptions.TextRenderingMode="ClearType" />
 
-        <Label Width="281"
-               Margin="108,258,0,0"
+        <Label Width="381"
+               Margin="26,258,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
-               HorizontalContentAlignment="Center"
+               HorizontalContentAlignment="Left"
                Content="Stats Summary"
                FontSize="25"
-               FontWeight="Light"
+               FontWeight="ExtraLight"
                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
                IsHitTestVisible="False"
-               Opacity="1"
+               Opacity=".7"
                Padding="0,0,0,0" />
 
-        <Label Width="377"
-               Margin="43,338,0,0"
+        <Label Width="345"
+               Margin="44,338,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Right"
@@ -177,8 +177,8 @@
                Opacity=".7"
                Padding="0,0,0,0" />
 
-        <Label Width="377"
-               Margin="43,467,0,0"
+        <Label Width="345"
+               Margin="44,467,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Right"
@@ -190,8 +190,8 @@
                Opacity=".7"
                Padding="0,0,0,0" />
 
-        <Label Width="255"
-               Margin="43,308,0,0"
+        <Label Width="267"
+               Margin="44,308,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Left"
@@ -203,8 +203,8 @@
                Opacity=".7"
                Padding="0,0,0,0" />
 
-        <Label Width="255"
-               Margin="43,436,0,0"
+        <Label Width="267"
+               Margin="44,436,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Left"
@@ -216,9 +216,9 @@
                Opacity=".7"
                Padding="0,0,0,0" />
 
-        <TextBlock Width="296"
-                   Height="176"
-                   Margin="494,335,0,0"
+        <TextBlock Width="348"
+                   Height="156"
+                   Margin="422,355,0,0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    TextWrapping="Wrap"><Run Text="Selecting an application for filtering will permit that application to access the internet." />
@@ -227,8 +227,8 @@
             <LineBreak /><Run />
         </TextBlock>
 
-        <Label Width="377"
-               Margin="43,404,0,0"
+        <Label Width="345"
+               Margin="44,404,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Right"
@@ -240,8 +240,8 @@
                Opacity=".7"
                Padding="0,0,0,0" />
 
-        <Label Width="255"
-               Margin="43,374,0,0"
+        <Label Width="267"
+               Margin="44,374,0,0"
                HorizontalAlignment="Left"
                VerticalAlignment="Top"
                HorizontalContentAlignment="Left"
@@ -252,10 +252,11 @@
                IsHitTestVisible="False"
                Opacity=".7"
                Padding="0,0,0,0" />
+        <Separator Height="20" Margin="422,335,28,156" />
 
-        <DataGrid x:Name="dataGridFilterApps"
+        <DataGrid x:Name="m_dataGridFilterApps"
                   Grid.Row="0"
-                  Margin="494,65,8,181"
+                  Margin="422,65,28,181"
                   AutoGenerateColumns="False"
                   ItemsSource="{Binding Path=FilteredApplications,
                                         Mode=Default}"

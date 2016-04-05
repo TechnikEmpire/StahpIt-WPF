@@ -44,9 +44,9 @@ namespace Te.StahpIt.Models
     /// </summary>
     public class FilteredAppModel
     {
-        private string m_applicationName;
+        private readonly string m_applicationName;
 
-        private string m_applicationPath;
+        private readonly string m_applicationPath;
 
         /// <summary>
         /// Application name without path or file extension.

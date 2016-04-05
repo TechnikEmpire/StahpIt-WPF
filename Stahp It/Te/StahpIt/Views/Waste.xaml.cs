@@ -31,28 +31,52 @@
 
 using System;
 using System.Windows;
+using Te.StahpIt.ViewModels;
 
 namespace Te.StahpIt.Views
 {
     /// <summary>
-    /// Interaction logic for ProgressWait.xaml
+    /// Interaction logic for Waste.xaml
     /// </summary>
-    public partial class ProgressWait : BaseView
+    public partial class Waste : BaseView
     {
-        public ProgressWait()
+        private WasteViewModel m_viewModel;
+
+        /// <summary>
+        /// Constructs a new Waste view with the corresponding view model.
+        /// </summary>
+        /// <param name="viewModel">
+        /// The view model for this view.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// In the event that the supplied WasteViewModel is null, will throw ArgumentException.
+        /// </exception>
+        public Waste(WasteViewModel viewModel)
         {
             InitializeComponent();
+
+            m_viewModel = viewModel;
+
+            if (m_viewModel == null)
+            {
+                throw new ArgumentException("Expected valid WasteViewModel instance.");
+            }
+
+            DataContext = m_viewModel;
         }
 
-        public void SetMessage(string waitMessage)
+        /// <summary>
+        /// Handler for when the hyperlink pointing to the settings view is clicked.
+        /// </summary>
+        /// <param name="sender">
+        /// Object raising the event.
+        /// </param>
+        /// <param name="e">
+        /// Event arguments.
+        /// </param>
+        private void OnSettingsLinkClicked(object sender, RoutedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(
-                System.Windows.Threading.DispatcherPriority.Normal,
-                (Action)delegate ()
-                {
-                    m_statusLabel.Content = waitMessage;
-                }
-            );
+            RequestViewChange(View.Settings);
         }
     }
 }

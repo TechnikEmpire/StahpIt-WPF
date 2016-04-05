@@ -129,7 +129,7 @@ namespace Te.StahpIt.ViewModels
             {
                 if (m_category != null)
                 {
-                    return m_category.TotalDataBlocked.KiloBytes;
+                    return Math.Round(m_category.TotalDataBlocked.KiloBytes, 2);
                 }
 
                 return 0d;

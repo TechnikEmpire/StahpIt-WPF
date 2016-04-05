@@ -15,16 +15,16 @@
             <Style x:Key="MinimalChartStyle" TargetType="chart:ChartBase" />
         </Grid.Resources>
 
-        <Canvas x:Name="barChartFilteredTrafficMapWrapper"
+        <Canvas x:Name="m_barChartFilteredTrafficMapWrapper"
                 Width="370"
                 Height="454"
                 Margin="10,22,0,39"
                 HorizontalAlignment="Left"
                 x:FieldModifier="private">
-            <chart:ClusteredBarChart x:Name="barChartFilteredTrafficMap"
-                                     Width="{Binding ElementName=barChartFilteredTrafficMapWrapper,
+            <chart:ClusteredBarChart x:Name="m_barChartFilteredTrafficMap"
+                                     Width="{Binding ElementName=m_barChartFilteredTrafficMapWrapper,
                                                      Path=ActualWidth}"
-                                     Height="{Binding ElementName=barChartFilteredTrafficMapWrapper,
+                                     Height="{Binding ElementName=m_barChartFilteredTrafficMapWrapper,
                                                       Path=ActualHeight}"
                                      HorizontalAlignment="Stretch"
                                      VerticalAlignment="Stretch"
@@ -47,15 +47,15 @@
             </chart:ClusteredBarChart>
         </Canvas>
 
-        <Canvas x:Name="barChartBandwidthMapWrapper"
+        <Canvas x:Name="m_barChartBandwidthMapWrapper"
                 Width="370"
                 Height="470"
                 Margin="412,23,18,18"
                 x:FieldModifier="private">
-            <chart:ClusteredColumnChart x:Name="barChartBandwidthMap"
-                                        Width="{Binding ElementName=barChartBandwidthMapWrapper,
+            <chart:ClusteredColumnChart x:Name="m_barChartBandwidthMap"
+                                        Width="{Binding ElementName=m_barChartBandwidthMapWrapper,
                                                         Path=ActualWidth}"
-                                        Height="{Binding ElementName=barChartBandwidthMapWrapper,
+                                        Height="{Binding ElementName=m_barChartBandwidthMapWrapper,
                                                          Path=ActualHeight}"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"

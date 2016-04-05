@@ -204,6 +204,7 @@
     <Compile Include="Te\StahpIt\ViewModels\FilteredAppViewModel.cs" />
     <Compile Include="Te\StahpIt\ViewModels\SettingsViewModel.cs" />
     <Compile Include="Te\StahpIt\ViewModels\StatisticsViewModel.cs" />
+    <Compile Include="Te\StahpIt\ViewModels\WasteViewModel.cs" />
     <Compile Include="Te\StahpIt\Views\BaseView.cs" />
     <Compile Include="Te\StahpIt\Views\Dashboard.xaml.cs">
       <DependentUpon>Dashboard.xaml</DependentUpon>
@@ -215,12 +216,19 @@
     <Compile Include="Te\StahpIt\Views\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Te\StahpIt\Views\Waste.xaml.cs">
+      <DependentUpon>Waste.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Te\StahpIt\Windows\Splash.xaml.cs">
       <DependentUpon>Splash.xaml</DependentUpon>
     </Compile>
     <Compile Include="Te\StahpIt\Views\Statistics.xaml.cs">
       <DependentUpon>Statistics.xaml</DependentUpon>
     </Compile>
+    <Page Include="Te\StahpIt\Views\Waste.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Te\StahpIt\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

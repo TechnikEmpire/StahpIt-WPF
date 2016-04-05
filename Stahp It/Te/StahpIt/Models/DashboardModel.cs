@@ -32,13 +32,36 @@
 using ByteSizeLib;
 using Newtonsoft.Json;
 using System;
+using System.Threading;
 using Te.HttpFilteringEngine;
 
 namespace Te.StahpIt.Models
 {
-    public class DashboardModel
+    public class DashboardModel : IDisposable
     {
         private readonly Engine m_engine;
+
+        /// <summary>
+        /// Internal storage for total requests blocked. Public access controlled by Interlocked.
+        /// </summary>
+        private long m_totalRequestsBlocked;
+
+        /// <summary>
+        /// Internal storage for total HTML elements removed. Public access controlled by
+        /// Interlocked.
+        /// </summary>
+        private long m_totalHtmlElementsRemoved;
+
+        /// <summary>
+        /// Internal storage for total data blocked. Public access controlled by
+        /// ReaderWriterLockSlim.
+        /// </summary>
+        private ByteSize m_totalDataBlocked;
+
+        /// <summary>
+        /// Read/write access control for total data blocked;
+        /// </summary>
+        private ReaderWriterLockSlim m_totalDataBlockedLock = new ReaderWriterLockSlim();
 
         public DashboardModel(Engine engine)
         {
@@ -46,7 +69,8 @@ namespace Te.StahpIt.Models
         }
 
         /// <summary>
-        /// Gets or sets whether or not filtering is enabled.
+        /// Gets or sets whether or not filtering is enabled. Thread safety is enforced internally
+        /// within the Engine. All methods accessed here are safe.
         /// </summary>
         [JsonIgnore]
         public bool FilteringEnabled
@@ -92,19 +116,33 @@ namespace Te.StahpIt.Models
         /// <summary>
         /// The total number of requests blocked according to logged statistics.
         /// </summary>
-        public UInt32 TotalRequestsBlocked
+        public long TotalRequestsBlocked
         {
-            get;
-            set;
+            get
+            {
+                return Interlocked.Read(ref m_totalRequestsBlocked);
+            }
+
+            set
+            {
+                Interlocked.Exchange(ref m_totalRequestsBlocked, value);
+            }
         }
 
         /// <summary>
         /// The total number of HTML objects removed by the filtering process.
         /// </summary>
-        public UInt32 TotalHtmlElementsRemoved
+        public long TotalHtmlElementsRemoved
         {
-            get;
-            set;
+            get
+            {
+                return Interlocked.Read(ref m_totalHtmlElementsRemoved);
+            }
+
+            set
+            {
+                Interlocked.Exchange(ref m_totalHtmlElementsRemoved, value);
+            }
         }
 
         /// <summary>
@@ -113,8 +151,33 @@ namespace Te.StahpIt.Models
         /// </summary>
         public ByteSize TotalDataBlocked
         {
-            get;
-            set;
+            get
+            {
+                m_totalDataBlockedLock.EnterReadLock();
+
+                try
+                {
+                    return m_totalDataBlocked;
+                }
+                finally
+                {
+                    m_totalDataBlockedLock.ExitReadLock();
+                }
+            }
+
+            set
+            {
+                m_totalDataBlockedLock.EnterWriteLock();
+
+                try
+                {
+                    m_totalDataBlocked = value;
+                }
+                finally
+                {
+                    m_totalDataBlockedLock.ExitWriteLock();
+                }
+            }
         }
 
         /// <summary>
@@ -129,5 +192,32 @@ namespace Te.StahpIt.Models
                 return string.Format("{0} {1}", Math.Round(TotalDataBlocked.LargestWholeNumberValue, 2).ToString(), TotalDataBlocked.LargestWholeNumberSymbol);
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    if(m_totalDataBlockedLock != null)
+                    {
+                        m_totalDataBlockedLock.Dispose();
+                    }
+                }              
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+        }
+        #endregion
     }
 }

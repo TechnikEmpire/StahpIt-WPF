@@ -43,7 +43,7 @@ namespace Te.StahpIt.Views
         Statistics,
         ProgressWait,
         Settings,
-        EnvironmentalImpact
+        Waste
     }
 
     /// <summary>
