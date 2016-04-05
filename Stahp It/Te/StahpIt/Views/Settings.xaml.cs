@@ -245,7 +245,7 @@ namespace Te.StahpIt.Views
                 return;
             }
 
-            // Very with the user whether the delete should really happen or not.
+            // Verify with the user whether the delete should really happen or not.
             MetroDialogSettings mds = new MetroDialogSettings();
             mds.AffirmativeButtonText = "Yes";
             mds.NegativeButtonText = "No";

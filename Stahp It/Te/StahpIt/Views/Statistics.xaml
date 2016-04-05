@@ -15,12 +15,15 @@
             <Style x:Key="MinimalChartStyle" TargetType="chart:ChartBase" />
         </Grid.Resources>
 
+        <!--  Canvas wrapper for the blocked requests chart.  -->
         <Canvas x:Name="m_barChartFilteredTrafficMapWrapper"
                 Width="370"
-                Height="454"
-                Margin="10,22,0,39"
+                Height="440"
+                Margin="14,15,0,56"
                 HorizontalAlignment="Left"
                 x:FieldModifier="private">
+
+            <!--  Metro chart that displays the number of blocked requests, per category.  -->
             <chart:ClusteredBarChart x:Name="m_barChartFilteredTrafficMap"
                                      Width="{Binding ElementName=m_barChartFilteredTrafficMapWrapper,
                                                      Path=ActualWidth}"
@@ -45,13 +48,17 @@
                                        ValueMember="TotalRequestsBlocked" />
                 </chart:ClusteredBarChart.Series>
             </chart:ClusteredBarChart>
+
         </Canvas>
 
+        <!--  Canvas wrapper for the saved bandwidth chart.  -->
         <Canvas x:Name="m_barChartBandwidthMapWrapper"
                 Width="370"
-                Height="470"
-                Margin="412,23,18,18"
+                Height="440"
+                Margin="416,15,14,56"
                 x:FieldModifier="private">
+
+            <!--  Metro chart for displaying the total saved bandwidth per category.  -->
             <chart:ClusteredColumnChart x:Name="m_barChartBandwidthMap"
                                         Width="{Binding ElementName=m_barChartBandwidthMapWrapper,
                                                         Path=ActualWidth}"
@@ -76,7 +83,17 @@
                                        ValueMember="TotalKilobytesBlocked" />
                 </chart:ClusteredColumnChart.Series>
             </chart:ClusteredColumnChart>
+
         </Canvas>
+
+        <Button x:Name="m_btnClearStats"
+                Width="120"
+                Margin="666,471,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Content="Clear All Stats"
+                Style="{StaticResource AccentedSquareButtonStyle}"
+                x:FieldModifier="private" />
 
     </Grid>
 </local:BaseView>

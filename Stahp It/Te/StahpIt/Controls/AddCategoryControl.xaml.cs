@@ -120,11 +120,11 @@ namespace Te.StahpIt.Controls
 
             AddButtonEnabled = false;
 
-            btnAddCategory.Click += OnAddCategoryClicked;
+            m_btnAddCategory.Click += OnAddCategoryClicked;
 
-            textboxCategoryName.TextChanged += OnInputChanged;
+            m_textboxCategoryName.TextChanged += OnInputChanged;
 
-            textboxCategoryUrl.TextChanged += OnInputChanged;
+            m_textboxCategoryUrl.TextChanged += OnInputChanged;
 
             IsVisibleChanged += OnVisibilityChanged;
         }
@@ -141,12 +141,12 @@ namespace Te.StahpIt.Controls
         {
             set
             {
-                btnAddCategory.IsEnabled = value;
+                m_btnAddCategory.IsEnabled = value;
             }
 
             get
             {
-                return btnAddCategory.IsEnabled;
+                return m_btnAddCategory.IsEnabled;
             }
         }
 
@@ -186,9 +186,9 @@ namespace Te.StahpIt.Controls
         {
             get
             {
-                if (textboxCategoryName.Text.Length > 0 && textboxCategoryUrl.Text.Length > 0)
+                if (m_textboxCategoryName.Text.Length > 0 && m_textboxCategoryUrl.Text.Length > 0)
                 {
-                    var parsedUri = TryGetSourceUri(textboxCategoryUrl.Text);
+                    var parsedUri = TryGetSourceUri(m_textboxCategoryUrl.Text);
 
                     if (parsedUri != null)
                     {
@@ -218,10 +218,10 @@ namespace Te.StahpIt.Controls
             {
                 try
                 {
-                    var source = TryGetSourceUri(textboxCategoryUrl.Text);
+                    var source = TryGetSourceUri(m_textboxCategoryUrl.Text);
                     var filteringCategory = new FilteringCategory(m_engine);
                     filteringCategory.RuleSource = source;
-                    filteringCategory.CategoryName = textboxCategoryName.Text;
+                    filteringCategory.CategoryName = m_textboxCategoryName.Text;
                     CategoryCreated(this, new FilteringCategoryCreatedArgs(filteringCategory));
                 }
                 catch(ArgumentException ae)
@@ -246,8 +246,8 @@ namespace Te.StahpIt.Controls
         /// </summary>
         public void Reset()
         {
-            textboxCategoryName.Clear();
-            textboxCategoryUrl.Clear();
+            m_textboxCategoryName.Clear();
+            m_textboxCategoryUrl.Clear();
         }
     }
 }

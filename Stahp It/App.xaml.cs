@@ -412,10 +412,13 @@ namespace Te.StahpIt
                     m_viewSettings.ViewChangeRequest += OnViewChangeRequest;
                     m_viewWaste.ViewChangeRequest += OnViewChangeRequest;
 
+                    // Listen for the statistics view requests for app-wide stats deletion.
+                    m_viewStatistics.ClearStatisticsRequested += OnClearAllStatsRequest;
+
                     MainWindow = m_primaryWindow;
                 }
             );
-        }
+        }        
 
         /// <summary>
         /// Callback for when a change in the current view has been requested.
@@ -529,6 +532,31 @@ namespace Te.StahpIt
                     }
                 );
             }
+        }
+
+        /// <summary>
+        /// Handler for when the user requests, via the Statistics View, program-wide deletion of
+        /// stats.
+        /// </summary>
+        /// <param name="sender">
+        /// Event origin.
+        /// </param>
+        private void OnClearAllStatsRequest(object sender)
+        {
+            Current.Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Normal,
+                (Action)delegate ()
+                {
+                    foreach (var category in m_filteringCategoriesObservable)
+                    {
+                        category.TotalBytesBlocked = 0;
+                        category.TotalRequestsBlocked = 0;
+                    }
+
+                    m_viewModelDashboard.TotalRequestsBlocked = 0;
+                    m_viewModelDashboard.TotalBytesBlocked = 0;
+                }
+            );
         }
 
         /// <summary>

@@ -15,7 +15,7 @@
                VerticalAlignment="Top"
                Content="Category Name" />
 
-        <TextBox x:Name="textboxCategoryName"
+        <TextBox x:Name="m_textboxCategoryName"
                  Width="230"
                  Height="23"
                  Margin="10,55,0,0"
@@ -31,7 +31,7 @@
                VerticalAlignment="Top"
                Content="Rule List URL" />
 
-        <TextBox x:Name="textboxCategoryUrl"
+        <TextBox x:Name="m_textboxCategoryUrl"
                  Width="230"
                  Height="23"
                  Margin="10,124,0,0"
@@ -41,7 +41,7 @@
                  TextWrapping="NoWrap"
                  x:FieldModifier="private" />
 
-        <Button x:Name="btnAddCategory"
+        <Button x:Name="m_btnAddCategory"
                 Width="120"
                 Margin="120,428,0,0"
                 HorizontalAlignment="Left"

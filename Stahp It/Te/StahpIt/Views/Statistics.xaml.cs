@@ -29,6 +29,8 @@
 * with Stahp It. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using Te.StahpIt.ViewModels;
 
@@ -39,6 +41,21 @@ namespace Te.StahpIt.Views
     /// </summary>
     public partial class Statistics : BaseView
     {
+        /// <summary>
+        /// Delegate for receiving requests to clear statistics. 
+        /// </summary>
+        /// <param name="sender">
+        /// Event Source.
+        /// </param>
+        public delegate void ClearStatisticsRequest(object sender);
+
+        /// <summary>
+        /// Event for requesting that program wide statistics be reset. This is a quick and dirty
+        /// solution for needing to be able to reset stats program-wide. XXX TODO ViewModels could be
+        /// improved to eliminate the need for such an event.
+        /// </summary>
+        public event ClearStatisticsRequest ClearStatisticsRequested;
+
         /// <summary>
         /// The view model.
         /// </summary>
@@ -65,6 +82,39 @@ namespace Te.StahpIt.Views
             }
 
             DataContext = m_viewModel;
+
+            m_btnClearStats.Click += OnClearStatsClicked;
+        }
+
+        /// <summary>
+        /// Handler for when the user clicks the clear stats button.
+        /// </summary>
+        /// <param name="sender">
+        /// Event origin.
+        /// </param>
+        /// <param name="e">
+        /// Event arguments.
+        /// </param>
+        private async void OnClearStatsClicked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // Verify with the user whether the delete should really happen or not.
+            MetroDialogSettings mds = new MetroDialogSettings();
+            mds.AffirmativeButtonText = "Yes";
+            mds.NegativeButtonText = "No";
+            MetroWindow parentWindow = this.TryFindParent<MetroWindow>();
+
+            if (parentWindow != null)
+            {
+                var result = await DialogManager.ShowMessageAsync(parentWindow, "Clear All Stats?", "Are you sure you would like to clear all stats? This cannot be undone.", MessageDialogStyle.AffirmativeAndNegative, mds);
+
+                if (result == MessageDialogResult.Affirmative)
+                {
+                    if (ClearStatisticsRequested != null)
+                    {
+                        ClearStatisticsRequested(this);
+                    }
+                }
+            }            
         }
     }
 }
