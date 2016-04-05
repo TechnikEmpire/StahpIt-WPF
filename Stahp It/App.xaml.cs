@@ -550,11 +550,12 @@ namespace Te.StahpIt
                     foreach (var category in m_filteringCategoriesObservable)
                     {
                         category.TotalBytesBlocked = 0;
-                        category.TotalRequestsBlocked = 0;
+                        category.TotalRequestsBlocked = 0;                        
                     }
 
                     m_viewModelDashboard.TotalRequestsBlocked = 0;
                     m_viewModelDashboard.TotalBytesBlocked = 0;
+                    m_viewModelDashboard.TotalHtmlElementsRemoved = 0;
                 }
             );
         }

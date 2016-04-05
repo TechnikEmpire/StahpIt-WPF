@@ -92,6 +92,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Content="Clear All Stats"
+                Cursor="Hand"
                 Style="{StaticResource AccentedSquareButtonStyle}"
                 x:FieldModifier="private" />
 
