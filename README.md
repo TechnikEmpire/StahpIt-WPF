@@ -17,7 +17,7 @@ Once the traffic is sent back inbound to the proxy, the proxy "pretends" to be t
 
 This decrypts the HTTPS connection locally, but only as far as Stahp It is concerned. Since we love encryption and are not evil, the connection to the external machine (the real server) is in fact secured, and if the process of establishing a secure connection encounters any issues (such as a bad or invalid certificate), the connection is immediately terminated, handing the issue down to the user. 
 
-If this process succeeds, the proxy simply hands data back and forth between the real server and the local process (your browser), only scanning the headers of requests and responses and filtering based on this data. In the event that a HTML response is detected, this content is parsed and all CSS selectors loaded are used to remove content from that payload, before being sent off to the local process (your browser).  
+If this process succeeds, the proxy simply hands data back and forth between the real server and the local process (your browser for example), only scanning the headers of requests and responses and filtering based on this data. In the event that a HTML response is detected, this content is parsed and all CSS selectors loaded are used to remove content from that payload, before being sent off to the local process (your browser).  
 
 The CA certificate and private key are destroyed and recreated every time the program runs and exits, and the keys are generated using named curves.
 
