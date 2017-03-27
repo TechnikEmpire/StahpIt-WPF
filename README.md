@@ -10,7 +10,7 @@ Put simply, Stahp It gives users complete control over all HTTP traffic. By its 
 
 Since any process of any kind that does HTTP/S communication is supported, you can filter web content that otherwise escapes other blockers (looking at you Windows 8/8.1/10 and the ads you ~~inject~~ used to inject into my shell).  
 
-##How It Works  
+## How It Works  
 Stahp It, via the [HttpFilteringEngine](https://github.com/TechnikEmpire/HttpFilteringEngine) library, uses [WinDivert](https://reqrypt.org/windivert.html) to intercept outbound HTTP/S packets and redirect them back inward to the internal proxy. This only happens when the user explicitly enables this functionality and it is controlled on a per-process basis.
 
 Once the traffic is sent back inbound to the proxy, the proxy "pretends" to be the server that the application was attempting to connect to. At this stage, if the connection is a HTTPS connection (secured), the proxy authenticates itself using a one time CA certificate and associated private key.  
@@ -23,18 +23,18 @@ The CA certificate and private key are destroyed and recreated every time the pr
 
 Stahp It does not trust your OS certificate store, just like FireFox does not and for the same reasons. People using self signed certs will have issues trying to use Stahp It.
 
-##I don't like words like "decrypt."  
+## I don't like words like "decrypt."  
 Have you ever visited a HTTPS website and saw intelligible content in your browser? That's because your browser decrypted it.
 
-##How Can I Trust You?
+## How Can I Trust You?  
 Surely, you shouldn't. I'm a random person in the world. Thankfully you don't have to, because all of Stahp It can be built from source and every bit of source code is 100% available for review. This project is just the GUI, the core functionality exists in [GQ](https://github.com/TechnikEmpire/GQ) and [HttpFilteringEngine](https://github.com/TechnikEmpire/HttpFilteringEngine). 
 
-##Privacy  
+## Privacy  
 Stahp It does not communicate with any external machine, except in its function as a transparent proxy. Personal settings are not stored anywhere but on your device, same goes for statistics and any other application related data. No third party devices are used for any sort of processing.
 
 The only "exception" to this is that Stahp It will, on startup, check directly with this repository for updates via [WinSparkle](https://winsparkle.org/). In this case, WinSparkle downloads information about the latest Release via an [appcast](https://github.com/TechnikEmpire/StahpIt-WPF), which is stored in this repository. WinSparkle will then compare this to the installed version and ask the user if they want to upgrade or not. 
 
-##Legalities  
+## Legalities  
 Stahp It includes binary releases of OpenSSL. Below is a quote taken from the [downloads page](https://www.openssl.org/source/) for OpenSSL:
 
 > Please remember that export/import and/or use of strong cryptography software, providing cryptography hooks, or even just communicating technical details about cryptography software is illegal in some parts of the world. So when you import this package to your country, re-distribute it from there or even just email technical suggestions or even source patches to the authors or other people you are strongly advised to pay close attention to any laws or regulations which apply to you. The authors of openssl are not liable for any violations you make here. So be careful, it is your responsibility. 
